@@ -92,6 +92,16 @@ Matrix mult_scal(Matrix m ,E s)
   return m_s;
 }
 
+Matrix expo(Matrix m,int exposant)
+{
+  Matrix new_m = newMatrix(m->nbrows,m->nbcols);
+  new_m = copie_matrix(m);
+  for(;exposant>1;exposant--)
+    new_m = mult(new_m,new_m);
+
+  return new_m; 
+}
+
 E valeur_absolue(E e)
 {
 	if (e < 0)

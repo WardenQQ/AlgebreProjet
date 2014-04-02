@@ -25,6 +25,8 @@ E triangulaire_det(Matrix m);
 
 E determinant(Matrix m);
 
+Matrix expo(Matri m,int exposant);
+
 Matrix invert(Matrix m);
 
 #endif
