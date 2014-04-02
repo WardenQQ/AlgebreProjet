@@ -26,4 +26,6 @@ Matrix identite(int nb_rows,int nb_columns);
 
 Matrix aleatoire(Matrix m,E min,E max);
 
+Matrix copie_matrix(Matrix m);
+
 #endif
