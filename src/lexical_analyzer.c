@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -7,102 +8,121 @@
 
 static enum token_type match_function(const char * string);
 
-union token get_next_token()
+union token gettoken()
 {
-  static int last_char = ' ';
+  // Initialise last_char à un caractère ignoré
+  static int last_char = '\0';
 
-  while (isspace(last_char)) {
+  while (last_char == ' ' || last_char == '\t' || last_char == '\0') {
     last_char = getchar();
   }
 
   union token tok;
-  tok.type = TOKEN_MATRIX;
 
-  if (last_char == EOF) {
-    tok.type = TOKEN_EOF;
+  switch (last_char) {
+    case EOF:
+      tok.type = TOK_EOF;
+      return tok;
+    case ';':
+      tok.type = TOK_SEMI_COLON;
+      last_char = getchar();
+      return tok;
+    case '\n':
+      tok.type = TOK_NEWLINE;
+      last_char = getchar();
+      return tok;
+    case ':':
+      tok.type = TOK_COLON;
+      last_char = getchar();
+      return tok;
+    case '(':
+      tok.type = TOK_LEFT_PARENTHESE;
+      last_char = getchar();
+      return tok;
+    case ')':
+      tok.type = TOK_RIGHT_PARENTHESE;
+      last_char = getchar();
+      return tok;
+    case '[':
+      tok.type = TOK_LEFT_BRACKET;
+      last_char = getchar();
+      return tok;
+    case ']':
+      tok.type = TOK_RIGHT_BRACKET;
+      last_char = getchar();
+      return tok;
+    case ',':
+      tok.type = TOK_COMMA;
+      last_char = getchar();
+      return tok;
+    default:
+      break;
+  }
+
+  if (isdigit(last_char)) {
+    int hasdot = false;
+    int i = 0;
+    char number[STRING_MAX];
+    do {
+      if (last_char == '.') {
+        hasdot = true;
+      }
+      number[i] = last_char;
+      ++i;
+      last_char = getchar();
+    } while((isdigit(last_char) || (last_char == '.' && !hasdot)) 
+            && i < STRING_MAX - 1);
+    number[i] = '\0';
+    tok.type = TOK_NUMBER;
+    tok.number.value = strtod(number, NULL);
     return tok;
   }
 
   if (isalpha(last_char)) {
-    tok.id.type = TOKEN_ID;
-    tok.id.name[0] = last_char;
-    last_char = getchar();
-    int i = 1;
-    while (isalnum(last_char) && i < NAME_MAX - 1) {
+    int i = 0;
+    do {
       tok.id.name[i] = last_char;
-      last_char = getchar();
       ++i;
-    }
+      last_char = getchar();
+    } while(isalnum(last_char) && i < STRING_MAX - 1);
     tok.id.name[i] = '\0';
-    tok.id.type = match_function(tok.id.name);
-  } else if (isdigit(last_char)) {
-    tok.id.type = TOKEN_NUMBER;
-    char number[NAME_MAX];
-    number[0] = last_char;
-    last_char = getchar();
-    int i = 1;
-    while (isdigit(last_char) && i < NAME_MAX - 1) {
-      number[i] = last_char;
-      last_char = getchar();
-      ++i;
-    }
-    number[i] = '\0';
-    tok.number.value = strtod(number, NULL);
-  } else if(last_char == ',') {
-    tok.type = TOKEN_COMMA; 
-    last_char = getchar();
-  } else if(last_char == ':') {
-    tok.type = TOKEN_COLON; 
-    last_char = getchar();
-  } else if(last_char == '(') {
-    tok.type = TOKEN_LEFT_PARENTHESE; 
-    last_char = getchar();
-  } else if(last_char == ')') {
-    tok.type = TOKEN_RIGHT_PARENTHESE; 
-    last_char = getchar();
-  } else if(last_char == '[') {
-    tok.type = TOKEN_LEFT_BRACKET; 
-    last_char = getchar();
-  } else if(last_char == ']') {
-    tok.type = TOKEN_RIGHT_BRACKET; 
-    last_char = getchar();
-  } else {
-    abort();
-    last_char = getchar();
+    tok.type = match_function(tok.id.name);
+    return tok;
   }
 
+  tok.type = TOK_ERROR;
   return tok;
 }
 
 static enum token_type match_function(const char * string)
 {
-  if (strncmp(string, "matrix", NAME_MAX) == 0) {
-    return TOKEN_MATRIX;
-  } else if (strncmp(string, "addition", NAME_MAX) == 0) {
-    return TOKEN_ADDITION;
-  } else if (strncmp(string, "sub", NAME_MAX) == 0) {
-    return TOKEN_SUB;
-  } else if (strncmp(string, "mult", NAME_MAX) == 0) {
-    return TOKEN_MULT;
-  } else if (strncmp(string, "mult_scal", NAME_MAX) == 0) {
-    return TOKEN_MULT_SCAL;
-  } else if (strncmp(string, "expo", NAME_MAX) == 0) {
-    return TOKEN_EXPO;
-  } else if (strncmp(string, "transpose", NAME_MAX) == 0) {
-    return TOKEN_TRANSPOSE;
-  } else if (strncmp(string, "determinant", NAME_MAX) == 0) {
-    return TOKEN_DETERMINANT;
-  } else if (strncmp(string, "invert", NAME_MAX) == 0) {
-    return TOKEN_INVERT;
-  } else if (strncmp(string, "solve", NAME_MAX) == 0) {
-    return TOKEN_SOLVE;
-  } else if (strncmp(string, "rank", NAME_MAX) == 0) {
-    return TOKEN_RANK;
-  } else if (strncmp(string, "speedtest", NAME_MAX) == 0) {
-    return TOKEN_SPEEDTEST;
-  } else if (strncmp(string, "quit", NAME_MAX) == 0) {
-    return TOKEN_QUIT;
+  if (strncmp(string, "matrix", STRING_MAX) == 0) {
+    return TOK_MATRIX;
+  } else if (strncmp(string, "addition", STRING_MAX) == 0) {
+    return TOK_ADDITION;
+  } else if (strncmp(string, "sub", STRING_MAX) == 0) {
+    return TOK_SUB;
+  } else if (strncmp(string, "mult", STRING_MAX) == 0) {
+    return TOK_MULT;
+  } else if (strncmp(string, "mult_scal", STRING_MAX) == 0) {
+    return TOK_MULT_SCAL;
+  } else if (strncmp(string, "expo", STRING_MAX) == 0) {
+    return TOK_EXPO;
+  } else if (strncmp(string, "transpose", STRING_MAX) == 0) {
+    return TOK_TRANSPOSE;
+  } else if (strncmp(string, "determinant", STRING_MAX) == 0) {
+    return TOK_DETERMINANT;
+  } else if (strncmp(string, "invert", STRING_MAX) == 0) {
+    return TOK_INVERT;
+  } else if (strncmp(string, "solve", STRING_MAX) == 0) {
+    return TOK_SOLVE;
+  } else if (strncmp(string, "rank", STRING_MAX) == 0) {
+    return TOK_RANK;
+  } else if (strncmp(string, "speedtest", STRING_MAX) == 0) {
+    return TOK_SPEEDTEST;
+  } else if (strncmp(string, "quit", STRING_MAX) == 0) {
+    return TOK_QUIT;
   } else {
-    return TOKEN_ID;
+    return TOK_ID;
   }
 }

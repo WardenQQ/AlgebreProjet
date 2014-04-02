@@ -1,5 +1,9 @@
 CC := gcc
+<<<<<<< HEAD
 CFLAGS := -g -Wall
+=======
+CFLAGS := -g -std=gnu99 -pedantic -Wall -Wextra
+>>>>>>> ad5e645011c7e3c7fedb32b5408539dbc14e50f2
 
 DDIR := doc
 IDIR := include
