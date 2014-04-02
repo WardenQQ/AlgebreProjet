@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -g -std=c99 -pedantic -Wall -Wextra
+CFLAGS := -g -std=gnu99 -pedantic -Wall -Wextra
 
 DDIR := doc
 IDIR := include
