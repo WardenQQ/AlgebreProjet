@@ -23,6 +23,6 @@ clean:
 	@rm $(SDIR)/*.o minicas
 
 minicas: $(OBJECTS)
-          $(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@
 
 .PHONY: all clean

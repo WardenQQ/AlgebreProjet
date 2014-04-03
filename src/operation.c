@@ -34,7 +34,8 @@ Matrix mult(Matrix m1,Matrix m2)
     {
       for(k = 0;k < m1->nbcols ;k++)
       {
-        mult = mult + (getElt(m1,i,k) * getElt(m2,k,j));		}	
+        mult = mult + (getElt(m1,i,k) * getElt(m2,k,j));
+      }	
     setElt(new_a,i,j,mult);
     mult = 0;
     }
@@ -187,6 +188,55 @@ E determinant(Matrix m)
   return c;
 }
 
+E puisscom(E e,int i,int j)
+{
+  E rsl = e;
+  int puiss = i+j;
+  while(;puiss>1;puiss--)
+    rsl = rsl * e;
+
+  return rsl;
+}
+
+Matrix extraction(Matrix m,int i ,int j )
+{
+  int k,l;
+  Matrix m_ex = newMatrix(m->nbrows-1,m->nbcols-1);
+  for(k=0;k<i;k++)
+    for(l=0;l<j;l++)
+      setElt(m_ex,k,l,getElt(m,k,l));
+
+  for(k=0;k<i;i++)
+    for(l=j;l<m->nbcols;l++)
+      setElt(m_ex,k,l-1,getElt(m,k,l));
+
+  for(k=i+1;k<m->nbrows;k++)
+    for(l=0;l<j-1;i++)
+      setElt(m_ex,k-1,l,getElt(m,k,l));
+
+  for(k=i+1;k<m->nbrows;k++)
+    for(l=j+1;l<m->nbrows;l++)
+      setElt(m_ex,k-1,l-1,getElt(m,k,l));
+  
+  return m_ex;
+}
+
+Matrix comatrice(Matrix m)
+{
+  Matrix co_m = newMatrix(m->nbrows,m->nbcols);
+  int i,j;
+  E co;
+  for(i =0;i<m->nbrows;i++)
+  {
+    for (j=0;j<m->nbcols;j++)
+    {
+       setElt(co_m,i,j,determinant(extraction(m,i,j)));
+    }
+  }
+
+  return co_m;
+}
+
 Matrix invert(Matrix m)
 {
   if (m->nbrows != m->nbcols)
@@ -199,7 +249,11 @@ Matrix invert(Matrix m)
     printf("Matrice non inversible determinant = 0");
     exit(1);
   }
+ 
+  m_inv = copie_matrix(m);
   
+  m_inv = mult_scal(transpose(comatrice(m_inv)),(1/determinant(m_inv)))
+
   return m_inv;
 }
 	
