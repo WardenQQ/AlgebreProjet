@@ -1,5 +1,4 @@
 #include "matrix.h"
-#include "lexical_analyzer.h"
 #include "operation.h"
 
 
@@ -13,7 +12,7 @@ int main(int argc,char * argv[])
 
   printf("le determinant est : %f\n",determinant(m));
 
-  Matrix mi = newMAtrix(10,10);
+  Matrix mi = newMatrix(10,10);
   
   mi = expo(m,5); 
 

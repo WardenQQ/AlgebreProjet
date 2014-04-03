@@ -128,7 +128,7 @@ int choixPivot(Matrix m,int i)
   return p;
 }
 
-void echangeLigne(Matrix m,int i,int j)
+void echangeLigne_det(Matrix m,int i,int j)
 {
   int k;
   E tmp;
@@ -140,7 +140,22 @@ void echangeLigne(Matrix m,int i,int j)
   }
 }
 
-void addmultiple(Matrix m , int i , int j ,E c)
+void echangeLigne(Matrix A,Matrix B,int i,int j)
+{
+  int k;
+  E tmp;
+  for(k = 0;k < A->nbrows;k++)
+  {
+    tmp = getElt(A,i,k);
+    setElt(A,i,k,getElt(A,j,k));
+    setElt(A,j,k,tmp);
+  }
+  tmp = getElt(B,i,0);
+  setElt(B,i,0,getElt(B,j,0));
+  setElt(B,j,0,tmp);
+}
+
+void addmultiple_det(Matrix m , int i , int j ,E c)
 {
   int k;
   E e;
@@ -161,12 +176,12 @@ E triangulaire_det(Matrix m)
     j = choixPivot(m,i);
     if (j!=i)
     {
-      echangeLigne(m,i,j);
+      echangeLigne_det(m,i,j);
       c = -c;
     }
     for(j = i+1;j < m->nbrows ; j++)
     {
-      addmultiple(m,j,i,-(getElt(m,j,i)/getElt(m,i,i)));
+      addmultiple_det(m,j,i,-(getElt(m,j,i)/getElt(m,i,i)));
     }  
   }
   return c;
@@ -188,36 +203,29 @@ E determinant(Matrix m)
   return c;
 }
 
-E puisscom(E e,int i,int j)
-{
-  E rsl = e;
-  int puiss = i+j;
-  while(;puiss>1;puiss--)
-    rsl = rsl * e;
-
-  return rsl;
-}
 
 Matrix extraction(Matrix m,int i ,int j )
 {
   int k,l;
   Matrix m_ex = newMatrix(m->nbrows-1,m->nbcols-1);
+  
   for(k=0;k<i;k++)
     for(l=0;l<j;l++)
       setElt(m_ex,k,l,getElt(m,k,l));
 
   for(k=0;k<i;i++)
-    for(l=j;l<m->nbcols;l++)
+    for(l=j+1;l<m->nbcols;l++)
       setElt(m_ex,k,l-1,getElt(m,k,l));
 
   for(k=i+1;k<m->nbrows;k++)
-    for(l=0;l<j-1;i++)
+    for(l=0;l<j;i++)
       setElt(m_ex,k-1,l,getElt(m,k,l));
 
   for(k=i+1;k<m->nbrows;k++)
     for(l=j+1;l<m->nbrows;l++)
       setElt(m_ex,k-1,l-1,getElt(m,k,l));
-  
+ 
+  displayMatrix(m_ex); 
   return m_ex;
 }
 
@@ -230,10 +238,14 @@ Matrix comatrice(Matrix m)
   {
     for (j=0;j<m->nbcols;j++)
     {
-       setElt(co_m,i,j,determinant(extraction(m,i,j)));
+       printf("i = %d j = %d \n",i,j);
+       Matrix tmp = extraction(m,i,j);
+       setElt(co_m,i,j,determinant(tmp));
+       printf("%f\n",getElt(co_m,i,j));
+       free(tmp);
     }
   }
-
+  displayMatrix(co_m);
   return co_m;
 }
 
@@ -249,12 +261,69 @@ Matrix invert(Matrix m)
     printf("Matrice non inversible determinant = 0");
     exit(1);
   }
- 
+  Matrix m_inv = newMatrix(m->nbrows,m->nbcols); 
   m_inv = copie_matrix(m);
-  
-  m_inv = mult_scal(transpose(comatrice(m_inv)),(1/determinant(m_inv)))
+ 
+  m_inv = mult_scal(transpose(comatrice(m_inv)),(1/determinant(m_inv)));
 
   return m_inv;
 }
 	
+void remontee(Matrix A,Matrix B,Matrix X)
+{
+  int i,j;
+  for(i=A->nbrows-1;i>=0;i--)
+  {
+    setElt(X,i,0,getElt(B,i,0));
+    for(j=i+1;j<A->nbrows;j++)
+    {
+      setElt(X,i,0,(getElt(X,i,0)-(getElt(A,i,j)*getElt(X,j,0))));
+    }
+    setElt(X,i,0,getElt(X,i,0)/getElt(A,i,i));
+  }
+}
+
+void addmultiple(Matrix A,Matrix B,int i,int j,E c)
+{
+  int k;
+  for(j=0;j<A->nbrows;j++)
+  {
+    setElt(A,i,k,(getElt(A,i,k) + (c * getElt(A,j,k))));
+  }
+  setElt(B,i,0,(getElt(B,i,0) + c * getElt(B,j,0)));
+}
+
+void triangulaire(Matrix A,Matrix B)
+{
+  int i,j;
+  Matrix new_A = newMatrix(A->nbrows,A->nbcols);
+  Matrix new_B = newMatrix(B->nbrows,B->nbcols);
+  for(i=0;i<A->nbrows-1;i++)
+  {
+    j = choixPivot(new_A,i);
+    echangeLigne(new_A,new_B,i,j);
+    for(j=i;j<A->nbrows;j++)
+    {
+      addmultiple(new_A,new_B,j,i,-(getElt(new_A,j,i)/getElt(new_A,i,i)));
+    }
+  } 
+}
+
+
+Matrix PivotDeGauss(Matrix A,Matrix B,Matrix X)
+{
+  Matrix new_A = newMatrix(A->nbrows,A->nbcols);
+  Matrix new_B = newMatrix(B->nbrows,B->nbcols);
+  triangulaire(new_A,new_B);
+  remontee(new_A,new_B,X);
+  
+  return X;
+}
+
+
+
+
+
+
+
 

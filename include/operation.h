@@ -17,22 +17,30 @@ E valeur_absolue(E e);
 
 int choixPivot(Matrix m,int i);
 
-void echangeLigne(Matrix m,int i,int j);
+void echangeLigne_det(Matrix m,int i,int j);
 
-void addmultiple(Matrix m,int i,int j,E c);
+void echangeLigne(Matrix A,Matrix B,int i,int j);
+
+void addmultiple_det(Matrix m,int i,int j,E c);
 
 E triangulaire_det(Matrix m);
 
 E determinant(Matrix m);
 
-Matrix expo(Matri m,int exposant);
-
-E puisscom(E e,int i,int j);
+Matrix expo(Matrix m,int exposant);
 
 Matrix extraction(Matrix m,int i,int j);
 
 Matrix comatrice(Matrix m);
 
 Matrix invert(Matrix m);
+
+void remontee(Matrix A,Matrix B,Matrix X);
+
+void triangulaire(Matrix A,Matrix B);
+
+Matrix PivotDeGauss(Matrix A,Matrix B,Matrix X);
+
+void addmultiple(Matrix A,Matrix B,int i,int j,E c);
 
 #endif
