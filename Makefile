@@ -13,8 +13,7 @@ VPATH := $(SDIR):$(IDIR):$(ODIR):$(BDIR)
 OBJECTS := $(patsubst %.c, %.o, $(wildcard $(SDIR)/*.c))
 
 
--%.o: %.c
-
+%.o: %.c
 	$(CC) $(CFLAGS) -I$(IDIR) -c $< -o $@
 
 all: minicas
