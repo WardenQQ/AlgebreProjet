@@ -331,7 +331,7 @@ void triangulaire(Matrix A,Matrix B)
 }
 
 
-Matrix PivotDeGauss(Matrix A,Matrix B,Matrix X)
+Matrix solve(Matrix A,Matrix B,Matrix X)
 {
   Matrix new_A = newMatrix(A->nbrows,A->nbcols);
   Matrix new_B = newMatrix(B->nbrows,B->nbcols);
