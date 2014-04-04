@@ -5,40 +5,34 @@
 
 int main(int argc,char * argv[])
 {
-  Matrix m = newMatrix(3,3);
-  setElt(m,0,0,1);
-  setElt(m,0,1,-1);
-  setElt(m,0,2,2);
-  setElt(m,1,0,3);
-  setElt(m,1,1,2);
-  setElt(m,1,2,1);
-  setElt(m,2,0,2);
-  setElt(m,2,1,-3);
-  setElt(m,2,2,-2);
-
+  Matrix A = newMatrix(3,3);
+  
   Matrix X = newMatrix(3,1);
 
   Matrix B = newMatrix(3,1);
 
-  setElt(B,0,0,5);
-  setElt(B,1,0,10);
-  setElt(B,2,0,-10);
+  A = aleatoire(A,0,5); 
+
+  B = aleatoire(B,0,5);
   
-  PivotDeGauss(m,B,X);
+  //solve(A,B,X);
 
-  displayMatrix(m);
+  displayMatrix(A);
 
-  displayMatrix(B);
+  //displayMatrix(B);
 
-  displayMatrix(X);
+  //displayMatrix(X);
 
-  //printf("le determinant est : %f\n",determinant(m));
-
-  //Matrix mi = newMatrix(3,3);
+  //printf("le determinant est : %f\n",determinant(A));
+  printf("le rang de la matrice est : %d\n",rank(A));
+  //Matrix mi;
   
-  //mi = invert(m); 
+  //mi = invert(A); 
 
   //displayMatrix(mi);
-
+  
+  deleteMatrix(A);
+  deleteMatrix(B);
+  deleteMatrix(X);
   return 0;
 }
