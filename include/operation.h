@@ -43,4 +43,6 @@ Matrix PivotDeGauss(Matrix A,Matrix B,Matrix X);
 
 void addmultiple(Matrix A,Matrix B,int i,int j,E c);
 
+int puisscom(int i,int j);
+
 #endif
