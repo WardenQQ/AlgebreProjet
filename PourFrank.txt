@@ -1,0 +1,9 @@
+J'ai changé le makefile pour pouvoir gerer des fichier test. On va
+garder le fichier minicas.c pour avoir le main() de notre programme; tu peux
+créer des fichiers sources commençant par test_*.c pour pouvoir tester des
+fonctions dans un autre main() sans que cela rentre en conflit avec minicas.c.
+Tous les programmes se compilent sous le dossier bin/.
+Essaye aussi avant de commit d'avoir le fonction compilant sans erreur (et ma
+préference sans warning).
+Je galère un peu de mon côté, mais je te demanderais ton aide si je ne finis
+pas avant dimanche midi.
