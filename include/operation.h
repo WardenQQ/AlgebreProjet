@@ -1,7 +1,7 @@
 #ifndef __OPERATION_H_
 #define __OPERATION_H_
 #include "matrix.h"
-
+typedef Matrix (*commande)(Matrix,Matrix);
 
 Matrix addition(Matrix m1,Matrix m2);
 
@@ -39,10 +39,12 @@ void remontee(Matrix A,Matrix B,Matrix X);
 
 void triangulaire(Matrix A,Matrix B);
 
-Matrix PivotDeGauss(Matrix A,Matrix B,Matrix X);
+Matrix solve(Matrix A,Matrix B,Matrix X);
 
 void addmultiple(Matrix A,Matrix B,int i,int j,E c);
 
 int puisscom(int i,int j);
+
+Matrix rank(Matrix A);
 
 #endif

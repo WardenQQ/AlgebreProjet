@@ -4,8 +4,8 @@ Matrix addition(Matrix m1,Matrix m2)
 {
   if ((m1->nbcols != m2->nbcols) || (m1->nbrows != m2->nbrows))	
   {
-    fprintf(stderr,"Addition impossible");
-    exit(1);
+    fprintf(stderr,"Addition impossible\n");
+    return NULL;
   }
   Matrix new_a = newMatrix(m1->nbrows,m1->nbcols);
   int i,j;
@@ -21,8 +21,8 @@ Matrix mult(Matrix m1,Matrix m2)
 {
   if (m1->nbcols != m2->nbrows)
   {
-    fprintf(stderr,"Multiplication impossible");
-    exit(1);
+    fprintf(stderr,"Multiplication impossible\n");
+    return NULL;
   }
 	
   Matrix new_a = newMatrix(m1->nbrows,m2->nbcols);
@@ -48,8 +48,8 @@ Matrix sub(Matrix m1,Matrix m2)
 {
   if ((m1->nbrows != m2->nbrows) || (m1->nbcols != m2->nbcols))
   {
-    fprintf(stderr,"Mauvaise dimension");
-    exit(1);
+    fprintf(stderr,"Mauvaise dimension\n");
+    return NULL;
   }
   Matrix m_sub = newMatrix(m1->nbrows,m1->nbcols);
   int i,j;
@@ -196,6 +196,11 @@ E determinant(Matrix m)
   {
     return (getElt(m,0,0));
   }
+  else if (m->nbrows != m->nbcols)
+  {
+    fprintf(stderr,"Matrice non carré\n");
+    exit(1);
+  }
   Matrix tmp = newMatrix(m->nbrows,m->nbcols);
   tmp = copie_matrix(m);
   c = triangulaire_det(tmp);
@@ -233,7 +238,7 @@ Matrix extraction(Matrix m,int i ,int j )
 	setElt(m_ex,k-1,l-1,getElt(m,k,l));
  
 
-  displayMatrix(m_ex); 
+   
   return m_ex;
 }
 
@@ -246,7 +251,6 @@ int puisscom(int i ,int j)
 	rsl = rsl * -1;
 	puiss --;
     }
-    printf("RSL : %d\n",rsl);
     return rsl;
 }
 
@@ -254,14 +258,13 @@ Matrix comatrice(Matrix m)
 {
   Matrix co_m = newMatrix(m->nbrows,m->nbcols);
   int i,j;
-  E co;
   for(i =0;i<m->nbrows;i++)
   {
     for (j=0;j<m->nbcols;j++)
     {
        Matrix tmp = extraction(m,i,j);
        setElt(co_m,i,j,puisscom(i+1,j+1)*determinant(tmp));
-       free(tmp);
+       deleteMatrix(tmp);
     }
   }
   
@@ -272,19 +275,19 @@ Matrix invert(Matrix m)
 {
   if (m->nbrows != m->nbcols)
   {
-    printf("Matrice non carré colonnes != lignes");
-    exit(1);
+    printf("Matrice non carré colonnes != lignes \n");
+    return NULL;
   }
   if (determinant(m) == 0)
   {
-    printf("Matrice non inversible determinant = 0");
-    exit(1);
+    printf("Matrice non inversible determinant = 0 \n");
+    return NULL;
   }
-  Matrix m_inv = newMatrix(m->nbrows,m->nbcols); 
+  Matrix m_inv; 
   m_inv = copie_matrix(m);
-  printf("1 / DET %f\n",1/determinant(m_inv)); 
+   
   m_inv = mult_scal(transpose(comatrice(m_inv)),(1/determinant(m_inv)));
-
+  
   return m_inv;
 }
 	
@@ -333,22 +336,45 @@ void triangulaire(Matrix A,Matrix B)
 
 Matrix solve(Matrix A,Matrix B,Matrix X)
 {
-  Matrix new_A = newMatrix(A->nbrows,A->nbcols);
-  Matrix new_B = newMatrix(B->nbrows,B->nbcols);
-  new_A = copie_matrix(A);
-  new_B = copie_matrix(B);
+  Matrix new_A = copie_matrix(A);
+  Matrix new_B = copie_matrix(B);
   triangulaire(new_A,new_B);
   displayMatrix(new_A);
   displayMatrix(new_B);
   remontee(new_A,new_B,X);
-  
+  deleteMatrix(new_A);
+  deleteMatrix(new_B);  
   return X;
 }
 
+Matrix rank(Matrix A)
+{
+  int i,j;
+  int rank = 0;
+  Matrix tmp = copie_matrix(A);
+  triangulaire_det(tmp);
+  for(i=0;i < tmp->nbrows;i++)
+  {
+    for(j=0;j < tmp->nbcols;j++)
+    {
+      if (getElt(tmp,i,j) != 0)
+      { 
+	rank++;
+	break;
+      }
+    }
+  }
+  displayMatrix(tmp);
+  deleteMatrix(tmp);
+  return rank;
+}
+
+void speedtest(commande c,int taille_min,int taille_max,int pas,int nb_sec)
+{
+  
 
 
-
-
+}
 
 
 
