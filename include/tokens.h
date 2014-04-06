@@ -17,6 +17,9 @@ enum token_type {
   TOK_RIGHT_BRACKET,
   TOK_NUMBER,
   TOK_ID,
+
+  TOK_VECTOR,
+  TOK_FUNCTION
 };
 
 struct token_id {
@@ -32,6 +35,7 @@ struct token_number {
 union token {
   enum token_type type;
   struct token_number number;
+  //TOK_ID or TOK_FUNCTION
   struct token_id id;
 };
 
