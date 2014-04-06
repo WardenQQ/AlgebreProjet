@@ -4,7 +4,7 @@
 
 #include "tree.h"
 
-Tree newTree(int nb_child)
+Tree newTree()
 {
   Tree t = malloc(sizeof(*t));
   if (t == NULL) {
@@ -12,14 +12,9 @@ Tree newTree(int nb_child)
     exit(1);
   }
 
-  t->child = malloc(sizeof(*(t->child)) * nb_child);
-  if (t->child == NULL) {
-    perror("newTree() ");
-    exit(1);
-  }
-
+  t->child = NULL;
   t->count = 0;
-  t->size = nb_child;
+  t->size = 0;
   t->value.type = TOK_NONE;
 
   return t;
@@ -30,9 +25,22 @@ void setValue(Tree t, union token value)
   t->value = value;
 }
 
+void setNbChild(Tree t, size_t nb)
+{
+  // On libère des struct tree si on en a trop.
+  for (size_t i = nb; i < t->count; ++i) {
+    deleteTree(t->child[i]);
+  }
+
+  t->child = realloc(t->child, sizeof(*(t->child)) * nb);
+  t->size = nb;
+}
+
 void addChild(Tree parent, Tree child)
 {
-  assert(parent->count < parent->size);
+  if (parent->count >= parent->size) {
+    setNbChild(parent, parent->size + 1);
+  }
 
   parent->child[parent->count] = child;
   ++parent->count;
