@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "lexical_analyzer.h"
+#include "tokens.h"
 
 union token gettoken()
 {

@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#include "lexical_analyzer.h"
+#include "tokens.h"
 
 typedef struct tree {
   size_t count;

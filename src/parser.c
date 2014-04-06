@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "tree.h"
 #include "parser.h"
-#include "lexical_analyzer.h"
+#include "tokens.h"
 
 // TODO: message d'erreur
 
