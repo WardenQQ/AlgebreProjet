@@ -4,7 +4,7 @@
 #define STRING_MAX 256
 
 enum token_type {
-  TOK_ERROR = -1,
+  TOK_NONE = -1,
   // Terminal tokens
   TOK_COLON,
   TOK_COMMA,
@@ -17,19 +17,6 @@ enum token_type {
   TOK_RIGHT_BRACKET,
   TOK_NUMBER,
   TOK_ID,
-  TOK_ADDITION,
-  TOK_DETERMINANT,
-  TOK_EXPO,
-  TOK_INVERT,
-  TOK_MATRIX,
-  TOK_MULT,
-  TOK_MULT_SCAL,
-  TOK_QUIT,
-  TOK_RANK,
-  TOK_SOLVE,
-  TOK_SPEEDTEST,
-  TOK_SUB,
-  TOK_TRANSPOSE
 };
 
 struct token_id {

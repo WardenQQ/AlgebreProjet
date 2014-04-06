@@ -27,3 +27,5 @@ clean:
 
 
 .PHONY: all clean
+
+.SECONDARY:

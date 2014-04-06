@@ -11,7 +11,11 @@ union token gettoken()
   // Initialise last_char à un caractère ignoré
   static int last_char = '\0';
 
-  while (isspace(last_char) || last_char == '\0') {
+  while (last_char != ',' || last_char != ':' || last_char != ';' ||
+         last_char != '(' || last_char != ')' || last_char != '[' ||
+         last_char != ']' || last_char != '.' || last_char != EOF ||
+         !isalnum(last_char)
+      ) {
     last_char = getchar();
   }
 
@@ -20,6 +24,10 @@ union token gettoken()
   switch (last_char) {
     case EOF:
       tok.type = TOK_EOF;
+      return tok;
+    case ',':
+      tok.type = TOK_COMMA;
+      last_char = getchar();
       return tok;
     case ';':
       tok.type = TOK_SEMI_COLON;
@@ -45,15 +53,11 @@ union token gettoken()
       tok.type = TOK_RIGHT_BRACKET;
       last_char = getchar();
       return tok;
-    case ',':
-      tok.type = TOK_COMMA;
-      last_char = getchar();
-      return tok;
     default:
       break;
   }
 
-  if (isdigit(last_char)) {
+  if (isdigit(last_char) || last_char == '.') {
     int hasdot = false;
     int i = 0;
     char number[STRING_MAX];
