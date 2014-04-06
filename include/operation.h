@@ -45,6 +45,6 @@ void addmultiple(Matrix A,Matrix B,int i,int j,E c);
 
 int puisscom(int i,int j);
 
-Matrix rank(Matrix A);
+int rank(Matrix A);
 
 #endif

@@ -4,7 +4,7 @@
 Matrix newMatrix(int nb_rows,int nb_columns)
 {
 	Matrix m;
-	if ((m = (Matrix *)malloc(sizeof(struct matrix))) == NULL)
+	if ((m = malloc(sizeof(struct matrix))) == NULL)
 	{
 		perror("Erreur de maloc :");
 	}
@@ -15,6 +15,7 @@ Matrix newMatrix(int nb_rows,int nb_columns)
 	}
 	m->nbrows = nb_rows;
 	m->nbcols = nb_columns;
+
 	return m;
 }
 

@@ -347,7 +347,7 @@ Matrix solve(Matrix A,Matrix B,Matrix X)
   return X;
 }
 
-Matrix rank(Matrix A)
+int rank(Matrix A)
 {
   int i,j;
   int rank = 0;
@@ -366,8 +366,50 @@ Matrix rank(Matrix A)
   }
   displayMatrix(tmp);
   deleteMatrix(tmp);
+
   return rank;
 }
+
+int plus_grande_compo(Matrix A)
+{
+  int i,max;
+  max = getElt(A,0,0);
+  for(i= 1 ; i < A->nbrows ; i++)
+  {
+    if (max < getElt(A,i,0))
+    {
+      max = getElt(A,i,0);
+    }
+  }
+
+  return i;
+}
+
+E valeur_propre(Matrix A,E precision)
+{
+  Matrix m_propre = copie_matrix(A);
+  Matrix v_propre = newMatrix(m_propre->nbrows,1);
+  E vp;
+  int i,j;
+  j = plus_grande
+  for(i=0 ; i < v_propre->nbrows;i++)
+  {
+    if (i = j) 
+    {
+      setElt(v_propre,i,0,1);
+    }
+    else 
+    {
+      setElt(v_propre,i,0,0);
+    }
+  }
+ 
+  
+
+
+  E vp;
+}
+
 
 void speedtest(commande c,int taille_min,int taille_max,int pas,int nb_sec)
 {

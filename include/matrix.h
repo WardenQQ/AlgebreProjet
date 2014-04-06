@@ -10,7 +10,7 @@ typedef struct matrix {
 	E *mat;
 	int nbrows,nbcols;
 
-} * Matrix;
+} matrix,* Matrix;
 
 Matrix newMatrix(int nb_rows,int nb_columns);
 
