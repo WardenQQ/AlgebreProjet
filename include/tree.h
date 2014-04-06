@@ -12,8 +12,9 @@ typedef struct tree {
   union token value;
 } *Tree;
 
-Tree newTree(int nb_child);
+Tree newTree();
 void setValue(Tree t, union token value);
+void setNbChild(Tree t, size_t nb);
 void addChild(Tree parent, Tree child);
 void deleteTree(Tree t);
 
