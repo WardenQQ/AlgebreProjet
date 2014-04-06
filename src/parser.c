@@ -2,6 +2,7 @@
 #include "tree.h"
 #include "parser.h"
 #include "tokens.h"
+#include "interpreter.h"
 
 // TODO: message d'erreur
 
@@ -18,13 +19,18 @@ static void optvectorparam(union token *lookahead, Tree parent);
 
 void parsing_loop()
 {
-  union token lookahead = gettoken();
-  while (lookahead.type != TOK_EOF) {
+  union token lookahead;
+  lookahead = gettoken();
+  do {
+
     Tree root = statement(&lookahead);
     if (root != NULL) {
-      // Interpreteur
+      interpreter(root);
+      deleteTree(root);
     }
-  }
+
+  lookahead = gettoken();
+  } while (lookahead.type != TOK_EOF);
 }
 
 static void match(enum token_type first, union token *lookahead)
@@ -41,15 +47,14 @@ static Tree statement(union token *lookahead)
   Tree node;
   switch (lookahead->type) {
     case TOK_EOF:
-      match(TOK_EOF, lookahead);
       return NULL;
     case TOK_SEMI_COLON:
-      match(TOK_SEMI_COLON, lookahead);
+      //match(TOK_SEMI_COLON, lookahead);
       return NULL;
     case TOK_ID:// Fall through!!
     case TOK_NUMBER:
       node = expression(lookahead);
-      match(TOK_SEMI_COLON, lookahead);
+      //match(TOK_SEMI_COLON, lookahead);
       return node;
     default:
       return NULL;
@@ -80,12 +85,14 @@ static Tree id_followup(union token *lookahead, Tree node)
   Tree rvalue = NULL;
   switch(lookahead->type) {
     case TOK_LEFT_PARENTHESE:
+      node->value.type = TOK_FUNCTION;
       match(TOK_LEFT_PARENTHESE, lookahead);
       param_list(lookahead, node);
       match(TOK_RIGHT_PARENTHESE, lookahead);
       return node;
     case TOK_COLON:
       assign = newTree();
+      setValue(assign, *lookahead);
       setNbChild(assign, 2);
       match(TOK_COLON, lookahead);
       rvalue = expression(lookahead);
@@ -115,6 +122,7 @@ static void param_list(union token *lookahead, Tree parent)
 static void param(union token *lookahead, Tree parent)
 {
   Tree child;
+  union token vec;
   switch (lookahead->type) {
     case TOK_ID:
       child = newTree();
@@ -130,6 +138,9 @@ static void param(union token *lookahead, Tree parent)
       break;
     case TOK_LEFT_BRACKET:
       child = newTree();
+      vec.type = TOK_FUNCTION;
+      setValue(child, vec);
+      addChild(parent, child);
       vector(lookahead, child);
       break;
     default:

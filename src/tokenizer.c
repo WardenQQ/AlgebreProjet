@@ -11,10 +11,10 @@ union token gettoken()
   // Initialise last_char à un caractère ignoré
   static int last_char = '\0';
 
-  while (last_char != ',' || last_char != ':' || last_char != ';' ||
-         last_char != '(' || last_char != ')' || last_char != '[' ||
-         last_char != ']' || last_char != '.' || last_char != EOF ||
-         !isalnum(last_char)
+  while (last_char != ',' && last_char != ':' && last_char != ';'
+      && last_char != '(' && last_char != ')' && last_char != '['
+      && last_char != ']' && last_char != '.' && last_char != EOF
+      && !isalnum(last_char)
       ) {
     last_char = getchar();
   }
