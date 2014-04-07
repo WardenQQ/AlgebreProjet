@@ -372,29 +372,44 @@ int rank(Matrix A)
 
 int plus_grande_compo(Matrix A)
 {
-  int i,max;
-  max = getElt(A,0,0);
+  int i,ind = 0;
+  E max = getElt(A,0,0);
   for(i= 1 ; i < A->nbrows ; i++)
   {
     if (max < getElt(A,i,0))
     {
-      max = getElt(A,i,0);
+      ind = 0;
     }
   }
 
-  return i;
+  return ind;
 }
 
-/*E valeur_propre(Matrix A,E precision)
+E plus_grande_compo_absolue(Matrix A)
+{
+  int i;
+  E max = valeur_absolue(getElt(A,0,0));
+  for(i = 1;i < A->nbrows;i++)
+  {
+    if (max < valeur_absolue(getElt(A,i,0)))
+    {
+      max = valeur_absolue(getElt(A,i,0));
+    }
+  }
+
+  return max;
+}
+
+E valeur_propre(Matrix A,E precision)
 {
   Matrix m_propre = copie_matrix(A);
   Matrix v_propre = newMatrix(m_propre->nbrows,1);
   E vp;
   int i,j;
-  j = plus_grande
+  j = plus_grande_compo(m_propre);
   for(i=0 ; i < v_propre->nbrows;i++)
   {
-    if (i = j) 
+    if (i == j) 
     {
       setElt(v_propre,i,0,1);
     }
@@ -403,20 +418,31 @@ int plus_grande_compo(Matrix A)
       setElt(v_propre,i,0,0);
     }
   }
- 
-  
+     
+  v_propre = mult(m_propre,v_propre);
+  vp = plus_grande_compo_absolue(v_propre);
+  v_propre = mult_scal(v_propre,1/vp);
+  int ok = 0;
+  while(ok == 0)
+  {
+    v_propre = mult(m_propre,v_propre);
+    if (precision > (plus_grande_compo_absolue(v_propre)-vp))
+      ok = 1;
+
+    vp = plus_grande_compo_absolue(v_propre);
+    v_propre = mult_scal(v_propre,1/vp);
+  } 
+
+  return vp;
+}
 
 
-  E vp;
-}*/
-
-
-/*void speedtest(commande c,int taille_min,int taille_max,int pas,int nb_sec)
+void speedtest(commande c,int taille_min,int taille_max,int pas,int nb_sec)
 {
   
 
 
-}*/
+}
 
 
 
