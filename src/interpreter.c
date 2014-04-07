@@ -8,6 +8,8 @@ static union data extract_data(Tree node);
 static union data call_function(Tree node);
 static union data call_matrix(Tree node);
 static union data call_addition(Tree node);
+static union data call_sub(Tree node);
+static union data call_mult(Tree node);
 
 void interpreter(Tree root)
 {
@@ -56,7 +58,9 @@ static union data call_function(Tree node)
   } else if (strncmp(node->value.id.name, "addition", STRING_MAX) == 0) {
     data = call_addition(node);
   } else if (strncmp(node->value.id.name, "sub", STRING_MAX) == 0) {
+    data = call_sub(node);
   } else if (strncmp(node->value.id.name, "mult", STRING_MAX) == 0) {
+    data = call_mult(node);
   } else if (strncmp(node->value.id.name, "mult_scal", STRING_MAX) == 0) {
   } else if (strncmp(node->value.id.name, "expo", STRING_MAX) == 0) {
   } else if (strncmp(node->value.id.name, "transpose", STRING_MAX) == 0) {
@@ -126,8 +130,82 @@ static union data call_addition(Tree node)
     }
   }
 
+  if (m[0].matrix.value->nbrows != m[1].matrix.value->nbrows
+      && m[0].matrix.value->nbcols != m[1].matrix.value->nbcols) {
+    fprintf(stderr, "In function %s, the matrices are not the same size.\n",
+        node->value.id.name);
+  }
+
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = addition(m[0].matrix.value, m[1].matrix.value);
+
+  deleteMatrix(m[0].matrix.value);
+  deleteMatrix(m[1].matrix.value);
+
+  return result;
+}
+
+static union data call_sub(Tree node)
+{
+  union data result = {.common = {.type = DATA_NULL}};
+  if (node->count != 2) {
+    fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
+    return result;
+  }
+
+  union data m[2];
+  for (int i = 0; i < 2; ++i) {
+    m[i] = extract_data(node->child[i]);
+    if (m[i].common.type != DATA_MATRIX) {
+      fprintf(stderr, "In function %s, arguments are not all of type matrix.\n",
+          node->value.id.name);
+      return result;
+    }
+  }
+
+  if (m[0].matrix.value->nbrows != m[1].matrix.value->nbrows
+      && m[0].matrix.value->nbcols != m[1].matrix.value->nbcols) {
+    fprintf(stderr, "In function %s, the matrices are not the same size.\n",
+        node->value.id.name);
+  }
+
+  result.matrix.type = DATA_MATRIX;
+  result.matrix.value = sub(m[0].matrix.value, m[1].matrix.value);
+
+  deleteMatrix(m[0].matrix.value);
+  deleteMatrix(m[1].matrix.value);
+
+  return result;
+}
+
+static union data call_mult(Tree node)
+{
+  union data result = {.common = {.type = DATA_NULL}};
+  if (node->count != 2) {
+    fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
+    return result;
+  }
+
+  union data m[2];
+  for (int i = 0; i < 2; ++i) {
+    m[i] = extract_data(node->child[i]);
+    if (m[i].common.type != DATA_MATRIX) {
+      fprintf(stderr, "In function %s, arguments are not all of type matrix.\n",
+          node->value.id.name);
+      return result;
+    }
+  }
+
+  if (m[0].matrix.value->nbcols != m[1].matrix.value->nbrows) {
+    fprintf(stderr, "In function %s, the matrices cannot be multiplied together.\n",
+        node->value.id.name);
+  }
+
+  result.matrix.type = DATA_MATRIX;
+  result.matrix.value = mult(m[0].matrix.value, m[1].matrix.value);
+
+  deleteMatrix(m[0].matrix.value);
+  deleteMatrix(m[1].matrix.value);
 
   return result;
 }
