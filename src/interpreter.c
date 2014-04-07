@@ -10,6 +10,13 @@ static union data call_matrix(Tree node);
 static union data call_addition(Tree node);
 static union data call_sub(Tree node);
 static union data call_mult(Tree node);
+static union data call_mult_scal(Tree node);
+static union data call_expo(Tree node);
+static union data call_transpose(Tree node);
+static union data call_determinant(Tree node);
+static union data call_invert(Tree node);
+static union data call_solve(Tree node);
+static union data call_rank(Tree node);
 
 void interpreter(Tree root)
 {
@@ -62,12 +69,19 @@ static union data call_function(Tree node)
   } else if (strncmp(node->value.id.name, "mult", STRING_MAX) == 0) {
     data = call_mult(node);
   } else if (strncmp(node->value.id.name, "mult_scal", STRING_MAX) == 0) {
+    data = call_mult_scal(node);
   } else if (strncmp(node->value.id.name, "expo", STRING_MAX) == 0) {
+    data = call_expo(node);
   } else if (strncmp(node->value.id.name, "transpose", STRING_MAX) == 0) {
+    data = call_transpose(node);
   } else if (strncmp(node->value.id.name, "determinant", STRING_MAX) == 0) {
+    data = call_determinant(node);
   } else if (strncmp(node->value.id.name, "invert", STRING_MAX) == 0) {
+    data = call_invert(node);
   } else if (strncmp(node->value.id.name, "solve", STRING_MAX) == 0) {
+    data = call_solve(node);
   } else if (strncmp(node->value.id.name, "rank", STRING_MAX) == 0) {
+    data = call_rank(node);
   } else if (strncmp(node->value.id.name, "quit", STRING_MAX) == 0) {
     exit(0);
   } else {
@@ -206,6 +220,203 @@ static union data call_mult(Tree node)
 
   deleteMatrix(m[0].matrix.value);
   deleteMatrix(m[1].matrix.value);
+
+  return result;
+}
+
+static union data call_mult_scal(Tree node)
+{
+  union data result = {.common = {.type = DATA_NULL}};
+  if (node->count != 2) {
+    fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
+    return result;
+  }
+
+  union data m[2];
+  for (int i = 0; i < 2; ++i) {
+    m[i] = extract_data(node->child[i]);
+  }
+  if (m[0].common.type != DATA_MATRIX) {
+    fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
+        node->value.id.name);
+    return result;
+  }
+  if (m[1].common.type != DATA_NUMBER) {
+    fprintf(stderr, "In function %s, argument 1 is not of type number.\n",
+        node->value.id.name);
+    return result;
+  }
+
+  result.matrix.type = DATA_MATRIX;
+  result.matrix.value = mult_scal(m[0].matrix.value, m[1].number.value);
+
+  deleteMatrix(m[0].matrix.value);
+
+  return result;
+}
+
+static union data call_expo(Tree node)
+{
+  union data result = {.common = {.type = DATA_NULL}};
+  if (node->count != 2) {
+    fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
+    return result;
+  }
+
+  union data m[2];
+  for (int i = 0; i < 2; ++i) {
+    m[i] = extract_data(node->child[i]);
+  }
+  if (m[0].common.type != DATA_MATRIX) {
+    fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
+        node->value.id.name);
+    return result;
+  }
+  if (m[1].common.type != DATA_NUMBER) {
+    fprintf(stderr, "In function %s, argument 1 is not of type number.\n",
+        node->value.id.name);
+    return result;
+  }
+
+  result.matrix.type = DATA_MATRIX;
+  result.matrix.value = expo(m[0].matrix.value, m[1].number.value);
+
+  deleteMatrix(m[0].matrix.value);
+
+  return result;
+}
+
+static union data call_transpose(Tree node)
+{
+  union data result = {.common = {.type = DATA_NULL}};
+  if (node->count != 1) {
+    fprintf(stderr, "Function %s expects 1 arguments\n", node->value.id.name);
+    return result;
+  }
+
+  union data m;
+  m = extract_data(node->child[0]);
+  if (m.common.type != DATA_MATRIX) {
+    fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
+        node->value.id.name);
+    return result;
+  }
+
+  result.matrix.type = DATA_MATRIX;
+  result.matrix.value = transpose(m.matrix.value);
+
+  deleteMatrix(m.matrix.value);
+
+  return result;
+}
+
+static union data call_determinant(Tree node)
+{
+  union data result = {.common = {.type = DATA_NULL}};
+  if (node->count != 1) {
+    fprintf(stderr, "Function %s expects 1 arguments\n", node->value.id.name);
+    return result;
+  }
+
+  union data m;
+  m = extract_data(node->child[0]);
+  if (m.common.type != DATA_MATRIX) {
+    fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
+        node->value.id.name);
+    return result;
+  }
+
+  if (m.matrix.value->nbrows != m.matrix.value->nbcols) {
+    fprintf(stderr, "In function %s, argument 0 is not a square matrix.\n",
+        node->value.id.name);
+    return result;
+  }
+
+  result.number.type = DATA_NUMBER;
+  result.number.value = determinant(m.matrix.value);
+
+  deleteMatrix(m.matrix.value);
+
+  return result;
+}
+
+static union data call_invert(Tree node)
+{
+  union data result = {.common = {.type = DATA_NULL}};
+  if (node->count != 1) {
+    fprintf(stderr, "Function %s expects 1 arguments\n", node->value.id.name);
+    return result;
+  }
+
+  union data m;
+  m = extract_data(node->child[0]);
+  if (m.common.type != DATA_MATRIX) {
+    fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
+        node->value.id.name);
+    return result;
+  }
+
+  if (m.matrix.value->nbrows != m.matrix.value->nbcols) {
+    fprintf(stderr, "In function %s, argument 0 is not a square matrix.\n",
+        node->value.id.name);
+    return result;
+  }
+
+  result.matrix.type = DATA_NUMBER;
+  result.matrix.value = invert(m.matrix.value);
+
+  deleteMatrix(m.matrix.value);
+
+  return result;
+}
+
+static union data call_solve(Tree node)
+{
+  union data result = {.common = {.type = DATA_NULL}};
+  if (node->count != 2) {
+    fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
+    return result;
+  }
+
+  union data m[2];
+  for (int i = 0; i < 2; ++i) {
+    m[i] = extract_data(node->child[i]);
+    if (m[i].common.type != DATA_MATRIX) {
+      fprintf(stderr, "In function %s, arguments are not all of type matrix.\n",
+          node->value.id.name);
+      return result;
+    }
+  }
+
+  result.matrix.type = DATA_MATRIX;
+  result.matrix.value = solve(m[0].matrix.value, m[1].matrix.value, NULL); //Won't work
+
+  deleteMatrix(m[0].matrix.value);
+  deleteMatrix(m[1].matrix.value);
+
+  return result;
+}
+
+static union data call_rank(Tree node)
+{
+  union data result = {.common = {.type = DATA_NULL}};
+  if (node->count != 1) {
+    fprintf(stderr, "Function %s expects 1 arguments\n", node->value.id.name);
+    return result;
+  }
+
+  union data m;
+  m = extract_data(node->child[0]);
+  if (m.common.type != DATA_MATRIX) {
+    fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
+        node->value.id.name);
+    return result;
+  }
+
+  result.number.type = DATA_NUMBER;
+  result.number.value = rank(m.matrix.value);
+
+  deleteMatrix(m.matrix.value);
 
   return result;
 }
