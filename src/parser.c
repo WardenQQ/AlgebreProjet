@@ -20,8 +20,10 @@ static void optvectorparam(union token *lookahead, Tree parent);
 void parsing_loop()
 {
   union token lookahead;
-  lookahead = gettoken();
   do {
+    printf("> ");
+    fflush(stdout);
+    lookahead = gettoken();
 
     Tree root = statement(&lookahead);
     if (root != NULL) {
@@ -29,7 +31,6 @@ void parsing_loop()
       deleteTree(root);
     }
 
-  lookahead = gettoken();
   } while (lookahead.type != TOK_EOF);
 }
 
@@ -138,7 +139,7 @@ static void param(union token *lookahead, Tree parent)
       break;
     case TOK_LEFT_BRACKET:
       child = newTree();
-      vec.type = TOK_FUNCTION;
+      vec.type = TOK_VECTOR;
       setValue(child, vec);
       addChild(parent, child);
       vector(lookahead, child);

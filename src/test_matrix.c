@@ -3,7 +3,7 @@
 
 
 
-int main(int argc,char * argv[])
+int main()
 {
   Matrix A = newMatrix(3,3);
   

@@ -385,7 +385,7 @@ int plus_grande_compo(Matrix A)
   return i;
 }
 
-E valeur_propre(Matrix A,E precision)
+/*E valeur_propre(Matrix A,E precision)
 {
   Matrix m_propre = copie_matrix(A);
   Matrix v_propre = newMatrix(m_propre->nbrows,1);
@@ -408,15 +408,15 @@ E valeur_propre(Matrix A,E precision)
 
 
   E vp;
-}
+}*/
 
 
-void speedtest(commande c,int taille_min,int taille_max,int pas,int nb_sec)
+/*void speedtest(commande c,int taille_min,int taille_max,int pas,int nb_sec)
 {
   
 
 
-}
+}*/
 
 
 
