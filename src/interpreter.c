@@ -93,37 +93,45 @@ static union data call_function(Tree node)
 
 static union data call_matrix(Tree node)
 {
-  union data mat;
-  mat.common.type = DATA_NULL;
+  union data result = {.common = {.type = DATA_NULL}};
+  if (node->count < 1) {
+    fprintf(stderr, "Function %s expects at least 1 argument.\n", node->value.id.name);
+    return result;
+  }
 
   int nb_rows = node->count;
-  for (int i = 0; i < nb_rows; ++i) {
-    if (node->child[i]->value.type != TOK_VECTOR) {
-      fprintf(stderr, "Expected a parameter of type list in function %s\n",
-          node->value.id.name);
-      return mat;
-    }
-  }
   int nb_columns = node->child[0]->count;
 
   Matrix m = newMatrix(nb_rows, nb_columns);
 
   for (int i = 0; i < nb_rows; ++i) {
     Tree list = node->child[i];
+    if (list->value.type != TOK_VECTOR) {
+      fprintf(stderr, "Expected an argument of type list in function %s\n",
+          node->value.id.name);
+      return result;
+    }
+
+    if (list->count != (int)nb_columns) {
+      fprintf(stderr, "List %d is of same size as list 0 in function %s\n",
+          i, node->value.id.name);
+      return result;
+    }
+
     for (int j = 0; j < nb_columns; ++j) {
       union data element = extract_data(list->child[j]);
       if (element.common.type != DATA_NUMBER) {
         fprintf(stderr, "List contains a value which is not a number\n");
-        return mat;
+        return result;
       }
       setElt(m, i, j, element.number.value);
     }
   }
 
-  mat.matrix.type = DATA_MATRIX;
-  mat.matrix.value = m;
+  result.matrix.type = DATA_MATRIX;
+  result.matrix.value = m;
 
-  return mat;
+  return result;
 }
 
 static union data call_addition(Tree node)
@@ -388,8 +396,9 @@ static union data call_solve(Tree node)
     }
   }
 
+  Matrix X = newMatrix(m[1].matrix.value->nbrows, m[1].matrix.value->nbcols);
   result.matrix.type = DATA_MATRIX;
-  result.matrix.value = solve(m[0].matrix.value, m[1].matrix.value, NULL); //Won't work
+  result.matrix.value = solve(m[0].matrix.value, m[1].matrix.value, X); //Won't work
 
   deleteMatrix(m[0].matrix.value);
   deleteMatrix(m[1].matrix.value);

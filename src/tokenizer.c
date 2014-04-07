@@ -14,7 +14,7 @@ union token gettoken()
   while (last_char != ',' && last_char != ':' && last_char != ';'
       && last_char != '(' && last_char != ')' && last_char != '['
       && last_char != ']' && last_char != '.' && last_char != EOF
-      && !isalnum(last_char)
+      && last_char == '_' && !isalnum(last_char)
       ) {
     last_char = getchar();
   }
@@ -76,13 +76,13 @@ union token gettoken()
     return tok;
   }
 
-  if (isalpha(last_char)) {
+  if (isalpha(last_char) || last_char == '_') {
     int i = 0;
     do {
       tok.id.name[i] = last_char;
       ++i;
       last_char = getchar();
-    } while(isalnum(last_char) && i < STRING_MAX - 1);
+    } while((isalnum(last_char) || last_char == '_') && i < STRING_MAX - 1);
     tok.id.name[i] = '\0';
     tok.type = TOK_ID;
     return tok;
