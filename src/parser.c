@@ -65,6 +65,7 @@ static Tree statement(union token *lookahead)
 static Tree expression(union token *lookahead)
 {
   Tree node = newTree();
+  union token vec = {.type = TOK_VECTOR};
   switch (lookahead->type) {
     case TOK_ID:
       setValue(node, *lookahead);
@@ -74,6 +75,10 @@ static Tree expression(union token *lookahead)
     case TOK_NUMBER:
       setValue(node, *lookahead);
       match(TOK_NUMBER, lookahead);
+      return node;
+    case TOK_LEFT_BRACKET:
+      setValue(node, vec);
+      vector(lookahead, node);
       return node;
     default:
         return NULL;
@@ -122,31 +127,8 @@ static void param_list(union token *lookahead, Tree parent)
 
 static void param(union token *lookahead, Tree parent)
 {
-  Tree child;
-  union token vec;
-  switch (lookahead->type) {
-    case TOK_ID:
-      child = newTree();
-      setValue(child, *lookahead);
-      addChild(parent, child);
-      match(TOK_ID, lookahead);
-      break;
-    case TOK_NUMBER:
-      child = newTree();
-      setValue(child, *lookahead);
-      addChild(parent, child);
-      match(TOK_NUMBER, lookahead);
-      break;
-    case TOK_LEFT_BRACKET:
-      child = newTree();
-      vec.type = TOK_VECTOR;
-      setValue(child, vec);
-      addChild(parent, child);
-      vector(lookahead, child);
-      break;
-    default:
-      break;
-  }
+  Tree child = expression(lookahead);
+  addChild(parent, child);
 }
 
 static void optparam(union token *lookahead, Tree parent)
