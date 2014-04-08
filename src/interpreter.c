@@ -32,6 +32,10 @@ void interpreter(Tree root)
     default:
       break;
   }
+
+  if (data.common.type == DATA_MATRIX) {
+    deleteMatrix(data.matrix.value);
+  }
 }
 
 static union data extract_data(Tree node)
