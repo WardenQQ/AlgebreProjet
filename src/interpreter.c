@@ -4,23 +4,23 @@
 
 #include "interpreter.h"
 
-static union data extract_data(Tree node);
-static union data call_function(Tree node);
-static union data call_matrix(Tree node);
-static union data call_addition(Tree node);
-static union data call_sub(Tree node);
-static union data call_mult(Tree node);
-static union data call_mult_scal(Tree node);
-static union data call_expo(Tree node);
-static union data call_transpose(Tree node);
-static union data call_determinant(Tree node);
-static union data call_invert(Tree node);
-static union data call_solve(Tree node);
-static union data call_rank(Tree node);
+static Data extract_data(Tree node);
+static Data call_function(Tree node);
+static Data call_matrix(Tree node);
+static Data call_addition(Tree node);
+static Data call_sub(Tree node);
+static Data call_mult(Tree node);
+static Data call_mult_scal(Tree node);
+static Data call_expo(Tree node);
+static Data call_transpose(Tree node);
+static Data call_determinant(Tree node);
+static Data call_invert(Tree node);
+static Data call_solve(Tree node);
+static Data call_rank(Tree node);
 
 void interpreter(Tree root)
 {
-  union data data = extract_data(root);
+  Data data = extract_data(root);
 
   switch (data.common.type) {
     case DATA_NUMBER:
@@ -38,9 +38,9 @@ void interpreter(Tree root)
   }
 }
 
-static union data extract_data(Tree node)
+static Data extract_data(Tree node)
 {
-  union data data = {.common = {.type = DATA_NULL}};
+  Data data = {.common = {.type = DATA_NULL}};
 
   switch (node->value.type) {
     case TOK_COLON:
@@ -61,9 +61,9 @@ static union data extract_data(Tree node)
   return data;
 }
 
-static union data call_function(Tree node)
+static Data call_function(Tree node)
 {
-  union data data;
+  Data data;
   if (strncmp(node->value.id.name, "matrix", STRING_MAX) == 0) {
     data = call_matrix(node);
   } else if (strncmp(node->value.id.name, "addition", STRING_MAX) == 0) {
@@ -95,9 +95,9 @@ static union data call_function(Tree node)
   return data;
 }
 
-static union data call_matrix(Tree node)
+static Data call_matrix(Tree node)
 {
-  union data result = {.common = {.type = DATA_NULL}};
+  Data result = {.common = {.type = DATA_NULL}};
   if (node->count < 1) {
     fprintf(stderr, "Function %s expects at least 1 argument.\n", node->value.id.name);
     return result;
@@ -123,7 +123,7 @@ static union data call_matrix(Tree node)
     }
 
     for (int j = 0; j < nb_columns; ++j) {
-      union data element = extract_data(list->child[j]);
+      Data element = extract_data(list->child[j]);
       if (element.common.type != DATA_NUMBER) {
         fprintf(stderr, "List contains a value which is not a number\n");
         return result;
@@ -138,15 +138,15 @@ static union data call_matrix(Tree node)
   return result;
 }
 
-static union data call_addition(Tree node)
+static Data call_addition(Tree node)
 {
-  union data result = {.common = {.type = DATA_NULL}};
+  Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
     fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
     return result;
   }
 
-  union data m[2];
+  Data m[2];
   for (int i = 0; i < 2; ++i) {
     m[i] = extract_data(node->child[i]);
     if (m[i].common.type != DATA_MATRIX) {
@@ -171,15 +171,15 @@ static union data call_addition(Tree node)
   return result;
 }
 
-static union data call_sub(Tree node)
+static Data call_sub(Tree node)
 {
-  union data result = {.common = {.type = DATA_NULL}};
+  Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
     fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
     return result;
   }
 
-  union data m[2];
+  Data m[2];
   for (int i = 0; i < 2; ++i) {
     m[i] = extract_data(node->child[i]);
     if (m[i].common.type != DATA_MATRIX) {
@@ -204,15 +204,15 @@ static union data call_sub(Tree node)
   return result;
 }
 
-static union data call_mult(Tree node)
+static Data call_mult(Tree node)
 {
-  union data result = {.common = {.type = DATA_NULL}};
+  Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
     fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
     return result;
   }
 
-  union data m[2];
+  Data m[2];
   for (int i = 0; i < 2; ++i) {
     m[i] = extract_data(node->child[i]);
     if (m[i].common.type != DATA_MATRIX) {
@@ -236,15 +236,15 @@ static union data call_mult(Tree node)
   return result;
 }
 
-static union data call_mult_scal(Tree node)
+static Data call_mult_scal(Tree node)
 {
-  union data result = {.common = {.type = DATA_NULL}};
+  Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
     fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
     return result;
   }
 
-  union data m[2];
+  Data m[2];
   for (int i = 0; i < 2; ++i) {
     m[i] = extract_data(node->child[i]);
   }
@@ -267,15 +267,15 @@ static union data call_mult_scal(Tree node)
   return result;
 }
 
-static union data call_expo(Tree node)
+static Data call_expo(Tree node)
 {
-  union data result = {.common = {.type = DATA_NULL}};
+  Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
     fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
     return result;
   }
 
-  union data m[2];
+  Data m[2];
   for (int i = 0; i < 2; ++i) {
     m[i] = extract_data(node->child[i]);
   }
@@ -298,15 +298,15 @@ static union data call_expo(Tree node)
   return result;
 }
 
-static union data call_transpose(Tree node)
+static Data call_transpose(Tree node)
 {
-  union data result = {.common = {.type = DATA_NULL}};
+  Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
     fprintf(stderr, "Function %s expects 1 arguments\n", node->value.id.name);
     return result;
   }
 
-  union data m;
+  Data m;
   m = extract_data(node->child[0]);
   if (m.common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
@@ -322,15 +322,15 @@ static union data call_transpose(Tree node)
   return result;
 }
 
-static union data call_determinant(Tree node)
+static Data call_determinant(Tree node)
 {
-  union data result = {.common = {.type = DATA_NULL}};
+  Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
     fprintf(stderr, "Function %s expects 1 arguments\n", node->value.id.name);
     return result;
   }
 
-  union data m;
+  Data m;
   m = extract_data(node->child[0]);
   if (m.common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
@@ -352,15 +352,15 @@ static union data call_determinant(Tree node)
   return result;
 }
 
-static union data call_invert(Tree node)
+static Data call_invert(Tree node)
 {
-  union data result = {.common = {.type = DATA_NULL}};
+  Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
     fprintf(stderr, "Function %s expects 1 arguments\n", node->value.id.name);
     return result;
   }
 
-  union data m;
+  Data m;
   m = extract_data(node->child[0]);
   if (m.common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
@@ -382,15 +382,15 @@ static union data call_invert(Tree node)
   return result;
 }
 
-static union data call_solve(Tree node)
+static Data call_solve(Tree node)
 {
-  union data result = {.common = {.type = DATA_NULL}};
+  Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
     fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
     return result;
   }
 
-  union data m[2];
+  Data m[2];
   for (int i = 0; i < 2; ++i) {
     m[i] = extract_data(node->child[i]);
     if (m[i].common.type != DATA_MATRIX) {
@@ -410,15 +410,15 @@ static union data call_solve(Tree node)
   return result;
 }
 
-static union data call_rank(Tree node)
+static Data call_rank(Tree node)
 {
-  union data result = {.common = {.type = DATA_NULL}};
+  Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
     fprintf(stderr, "Function %s expects 1 arguments\n", node->value.id.name);
     return result;
   }
 
-  union data m;
+  Data m;
   m = extract_data(node->child[0]);
   if (m.common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
