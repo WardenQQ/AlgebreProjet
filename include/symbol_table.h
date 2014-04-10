@@ -1,6 +1,8 @@
 #ifndef _SYMBOL_TABLE_H_
 #define _SYMBOL_TABLE_H_
 
+#include <stdbool.h>
+
 #include "matrix.h"
 
 #define STRING_MAX 256
@@ -23,6 +25,7 @@ typedef union data {
 
   struct {
     enum data_type type;
+    bool is_temp;
     Matrix value;
   } matrix;
 } Data;

@@ -4,23 +4,27 @@
 
 #include "interpreter.h"
 
-static Data extract_data(Tree node);
-static Data call_function(Tree node);
-static Data call_matrix(Tree node);
-static Data call_addition(Tree node);
-static Data call_sub(Tree node);
-static Data call_mult(Tree node);
-static Data call_mult_scal(Tree node);
-static Data call_expo(Tree node);
-static Data call_transpose(Tree node);
-static Data call_determinant(Tree node);
-static Data call_invert(Tree node);
-static Data call_solve(Tree node);
-static Data call_rank(Tree node);
+static Data extract_data(Tree node, SymbolTable symbol_table);
 
-void interpreter(Tree root)
+static Data assign(Tree node, SymbolTable symbol_table);
+
+static Data call_function(Tree node, SymbolTable symbol_table);
+static Data call_matrix(Tree node, SymbolTable symbol_table);
+static Data call_addition(Tree node, SymbolTable symbol_table);
+static Data call_sub(Tree node, SymbolTable symbol_table);
+static Data call_mult(Tree node, SymbolTable symbol_table);
+static Data call_mult_scal(Tree node, SymbolTable symbol_table);
+static Data call_expo(Tree node, SymbolTable symbol_table);
+static Data call_transpose(Tree node, SymbolTable symbol_table);
+static Data call_determinant(Tree node, SymbolTable symbol_table);
+static Data call_invert(Tree node, SymbolTable symbol_table);
+static Data call_solve(Tree node, SymbolTable symbol_table);
+static Data call_rank(Tree node, SymbolTable symbol_table);
+
+
+void interpreter(Tree root, SymbolTable symbol_table)
 {
-  Data data = extract_data(root);
+  Data data = extract_data(root, symbol_table);
 
   switch (data.common.type) {
     case DATA_NUMBER:
@@ -28,27 +32,28 @@ void interpreter(Tree root)
       break;
     case DATA_MATRIX:
       displayMatrix(data.matrix.value);
+      if (data.matrix.is_temp) {
+        deleteMatrix(data.matrix.value);
+      }
       break;
     default:
       break;
   }
-
-  if (data.common.type == DATA_MATRIX) {
-    deleteMatrix(data.matrix.value);
-  }
 }
 
-static Data extract_data(Tree node)
+static Data extract_data(Tree node, SymbolTable symbol_table)
 {
   Data data = {.common = {.type = DATA_NULL}};
 
   switch (node->value.type) {
     case TOK_COLON:
+      data = assign(node, symbol_table);
       break;
     case TOK_FUNCTION:
-      data = call_function(node);
+      data = call_function(node, symbol_table);
       break;
     case TOK_ID:
+      data = find_entry_data(symbol_table, node->value.id.name);
       break;
     case TOK_NUMBER:
       data.number.type = DATA_NUMBER;
@@ -61,31 +66,48 @@ static Data extract_data(Tree node)
   return data;
 }
 
-static Data call_function(Tree node)
+static Data assign(Tree node, SymbolTable symbol_table)
+{
+  Data data = {.common = {.type = DATA_NULL}};
+  if (node->count != 2) {
+    fprintf(stderr, "The assignement operator : is a binary operator\n");
+  }
+
+  data = extract_data(node->child[1], symbol_table);
+  if (data.common.type == DATA_MATRIX) {
+    data.matrix.is_temp = false;
+  }
+  add_entry(symbol_table, node->child[0]->value.id.name, data);
+  
+
+  return data;
+}
+
+static Data call_function(Tree node, SymbolTable symbol_table)
 {
   Data data;
   if (strncmp(node->value.id.name, "matrix", STRING_MAX) == 0) {
-    data = call_matrix(node);
+    data = call_matrix(node, symbol_table);
   } else if (strncmp(node->value.id.name, "addition", STRING_MAX) == 0) {
-    data = call_addition(node);
+    data = call_addition(node, symbol_table);
   } else if (strncmp(node->value.id.name, "sub", STRING_MAX) == 0) {
-    data = call_sub(node);
+    data = call_sub(node, symbol_table);
   } else if (strncmp(node->value.id.name, "mult", STRING_MAX) == 0) {
-    data = call_mult(node);
+    data = call_mult(node, symbol_table);
   } else if (strncmp(node->value.id.name, "mult_scal", STRING_MAX) == 0) {
-    data = call_mult_scal(node);
+    data = call_mult_scal(node, symbol_table);
   } else if (strncmp(node->value.id.name, "expo", STRING_MAX) == 0) {
-    data = call_expo(node);
+    data = call_expo(node, symbol_table);
   } else if (strncmp(node->value.id.name, "transpose", STRING_MAX) == 0) {
-    data = call_transpose(node);
+    data = call_transpose(node, symbol_table);
   } else if (strncmp(node->value.id.name, "determinant", STRING_MAX) == 0) {
-    data = call_determinant(node);
+    data = call_determinant(node, symbol_table);
   } else if (strncmp(node->value.id.name, "invert", STRING_MAX) == 0) {
-    data = call_invert(node);
+    data = call_invert(node, symbol_table);
   } else if (strncmp(node->value.id.name, "solve", STRING_MAX) == 0) {
-    data = call_solve(node);
+    data = call_solve(node, symbol_table);
   } else if (strncmp(node->value.id.name, "rank", STRING_MAX) == 0) {
-    data = call_rank(node);
+    data = call_rank(node, symbol_table);
   } else if (strncmp(node->value.id.name, "quit", STRING_MAX) == 0) {
     exit(0);
   } else {
@@ -95,7 +117,7 @@ static Data call_function(Tree node)
   return data;
 }
 
-static Data call_matrix(Tree node)
+static Data call_matrix(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count < 1) {
@@ -123,7 +145,7 @@ static Data call_matrix(Tree node)
     }
 
     for (int j = 0; j < nb_columns; ++j) {
-      Data element = extract_data(list->child[j]);
+      Data element = extract_data(list->child[j], symbol_table);
       if (element.common.type != DATA_NUMBER) {
         fprintf(stderr, "List contains a value which is not a number\n");
         return result;
@@ -134,11 +156,12 @@ static Data call_matrix(Tree node)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = m;
+  result.matrix.is_temp = true;
 
   return result;
 }
 
-static Data call_addition(Tree node)
+static Data call_addition(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
@@ -148,7 +171,7 @@ static Data call_addition(Tree node)
 
   Data m[2];
   for (int i = 0; i < 2; ++i) {
-    m[i] = extract_data(node->child[i]);
+    m[i] = extract_data(node->child[i], symbol_table);
     if (m[i].common.type != DATA_MATRIX) {
       fprintf(stderr, "In function %s, argument %d is not of type matrix.\n",
           node->value.id.name, i);
@@ -164,14 +187,19 @@ static Data call_addition(Tree node)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = addition(m[0].matrix.value, m[1].matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m[0].matrix.value);
-  deleteMatrix(m[1].matrix.value);
+  if (m[0].matrix.is_temp) {
+    deleteMatrix(m[0].matrix.value);
+  }
+  if (m[1].matrix.is_temp) {
+    deleteMatrix(m[1].matrix.value);
+  }
 
   return result;
 }
 
-static Data call_sub(Tree node)
+static Data call_sub(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
@@ -181,7 +209,7 @@ static Data call_sub(Tree node)
 
   Data m[2];
   for (int i = 0; i < 2; ++i) {
-    m[i] = extract_data(node->child[i]);
+    m[i] = extract_data(node->child[i], symbol_table);
     if (m[i].common.type != DATA_MATRIX) {
       fprintf(stderr, "In function %s, arguments are not all of type matrix.\n",
           node->value.id.name);
@@ -197,14 +225,19 @@ static Data call_sub(Tree node)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = sub(m[0].matrix.value, m[1].matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m[0].matrix.value);
-  deleteMatrix(m[1].matrix.value);
+  if (m[0].matrix.is_temp) {
+    deleteMatrix(m[0].matrix.value);
+  }
+  if (m[1].matrix.is_temp) {
+    deleteMatrix(m[1].matrix.value);
+  }
 
   return result;
 }
 
-static Data call_mult(Tree node)
+static Data call_mult(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
@@ -214,7 +247,7 @@ static Data call_mult(Tree node)
 
   Data m[2];
   for (int i = 0; i < 2; ++i) {
-    m[i] = extract_data(node->child[i]);
+    m[i] = extract_data(node->child[i], symbol_table);
     if (m[i].common.type != DATA_MATRIX) {
       fprintf(stderr, "In function %s, arguments are not all of type matrix.\n",
           node->value.id.name);
@@ -229,14 +262,19 @@ static Data call_mult(Tree node)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = mult(m[0].matrix.value, m[1].matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m[0].matrix.value);
-  deleteMatrix(m[1].matrix.value);
+  if (m[0].matrix.is_temp) {
+    deleteMatrix(m[0].matrix.value);
+  }
+  if (m[1].matrix.is_temp) {
+    deleteMatrix(m[1].matrix.value);
+  }
 
   return result;
 }
 
-static Data call_mult_scal(Tree node)
+static Data call_mult_scal(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
@@ -246,7 +284,7 @@ static Data call_mult_scal(Tree node)
 
   Data m[2];
   for (int i = 0; i < 2; ++i) {
-    m[i] = extract_data(node->child[i]);
+    m[i] = extract_data(node->child[i], symbol_table);
   }
   if (m[0].common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
@@ -261,13 +299,16 @@ static Data call_mult_scal(Tree node)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = mult_scal(m[0].matrix.value, m[1].number.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m[0].matrix.value);
+  if (m[0].matrix.is_temp) {
+    deleteMatrix(m[0].matrix.value);
+  }
 
   return result;
 }
 
-static Data call_expo(Tree node)
+static Data call_expo(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
@@ -277,7 +318,7 @@ static Data call_expo(Tree node)
 
   Data m[2];
   for (int i = 0; i < 2; ++i) {
-    m[i] = extract_data(node->child[i]);
+    m[i] = extract_data(node->child[i], symbol_table);
   }
   if (m[0].common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
@@ -292,13 +333,16 @@ static Data call_expo(Tree node)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = expo(m[0].matrix.value, m[1].number.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m[0].matrix.value);
+  if (m[0].matrix.is_temp) {
+    deleteMatrix(m[0].matrix.value);
+  }
 
   return result;
 }
 
-static Data call_transpose(Tree node)
+static Data call_transpose(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
@@ -307,7 +351,7 @@ static Data call_transpose(Tree node)
   }
 
   Data m;
-  m = extract_data(node->child[0]);
+  m = extract_data(node->child[0], symbol_table);
   if (m.common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
         node->value.id.name);
@@ -316,13 +360,16 @@ static Data call_transpose(Tree node)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = transpose(m.matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m.matrix.value);
+  if (m.matrix.is_temp) {
+    deleteMatrix(m.matrix.value);
+  }
 
   return result;
 }
 
-static Data call_determinant(Tree node)
+static Data call_determinant(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
@@ -331,7 +378,7 @@ static Data call_determinant(Tree node)
   }
 
   Data m;
-  m = extract_data(node->child[0]);
+  m = extract_data(node->child[0], symbol_table);
   if (m.common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
         node->value.id.name);
@@ -346,13 +393,16 @@ static Data call_determinant(Tree node)
 
   result.number.type = DATA_NUMBER;
   result.number.value = determinant(m.matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m.matrix.value);
+  if (m.matrix.is_temp) {
+    deleteMatrix(m.matrix.value);
+  }
 
   return result;
 }
 
-static Data call_invert(Tree node)
+static Data call_invert(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
@@ -361,7 +411,7 @@ static Data call_invert(Tree node)
   }
 
   Data m;
-  m = extract_data(node->child[0]);
+  m = extract_data(node->child[0], symbol_table);
   if (m.common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
         node->value.id.name);
@@ -376,13 +426,16 @@ static Data call_invert(Tree node)
 
   result.matrix.type = DATA_NUMBER;
   result.matrix.value = invert(m.matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m.matrix.value);
+  if (m.matrix.is_temp) {
+    deleteMatrix(m.matrix.value);
+  }
 
   return result;
 }
 
-static Data call_solve(Tree node)
+static Data call_solve(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
@@ -392,7 +445,7 @@ static Data call_solve(Tree node)
 
   Data m[2];
   for (int i = 0; i < 2; ++i) {
-    m[i] = extract_data(node->child[i]);
+    m[i] = extract_data(node->child[i], symbol_table);
     if (m[i].common.type != DATA_MATRIX) {
       fprintf(stderr, "In function %s, arguments are not all of type matrix.\n",
           node->value.id.name);
@@ -403,14 +456,19 @@ static Data call_solve(Tree node)
   Matrix X = newMatrix(m[1].matrix.value->nbrows, m[1].matrix.value->nbcols);
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = solve(m[0].matrix.value, m[1].matrix.value, X); //Won't work
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m[0].matrix.value);
-  deleteMatrix(m[1].matrix.value);
+  if (m[0].matrix.is_temp) {
+    deleteMatrix(m[0].matrix.value);
+  }
+  if (m[1].matrix.is_temp) {
+    deleteMatrix(m[1].matrix.value);
+  }
 
   return result;
 }
 
-static Data call_rank(Tree node)
+static Data call_rank(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
@@ -419,7 +477,7 @@ static Data call_rank(Tree node)
   }
 
   Data m;
-  m = extract_data(node->child[0]);
+  m = extract_data(node->child[0], symbol_table);
   if (m.common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
         node->value.id.name);
@@ -428,8 +486,11 @@ static Data call_rank(Tree node)
 
   result.number.type = DATA_NUMBER;
   result.number.value = rank(m.matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m.matrix.value);
+  if (m.matrix.is_temp) {
+    deleteMatrix(m.matrix.value);
+  }
 
   return result;
 }

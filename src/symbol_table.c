@@ -44,6 +44,7 @@ void add_entry(SymbolTable s, char *id, Data data)
   }
   strncpy(s->array[s->count].name, id, STRING_MAX);
   s->array[s->count].data = data;
+  ++s->count;
 }
 
 Data find_entry_data(SymbolTable s, char *id)

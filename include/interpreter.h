@@ -6,6 +6,6 @@
 #include "operation.h"
 #include "symbol_table.h"
 
-void interpreter(Tree root);
+void interpreter(Tree root, SymbolTable symbol_table);
 
 #endif //_interpreter_h_

@@ -19,6 +19,7 @@ static void optvectorparam(union token *lookahead, Tree parent);
 
 void parsing_loop()
 {
+  SymbolTable symbol_table = newSymbolTable();
   union token lookahead;
   do {
     printf("> ");
@@ -27,7 +28,7 @@ void parsing_loop()
 
     Tree root = statement(&lookahead);
     if (root != NULL) {
-      interpreter(root);
+      interpreter(root, symbol_table);
       deleteTree(root);
     }
 
