@@ -32,13 +32,12 @@ void interpreter(Tree root, SymbolTable symbol_table)
       break;
     case DATA_MATRIX:
       displayMatrix(data.matrix.value);
+      if (data.matrix.is_temp) {
+        deleteMatrix(data.matrix.value);
+      }
       break;
     default:
       break;
-  }
-
-  if (data.common.type == DATA_MATRIX) {
-    deleteMatrix(data.matrix.value);
   }
 }
 
@@ -75,7 +74,11 @@ static Data assign(Tree node, SymbolTable symbol_table)
   }
 
   data = extract_data(node->child[1], symbol_table);
+  if (data.common.type == DATA_MATRIX) {
+    data.matrix.is_temp = false;
+  }
   add_entry(symbol_table, node->child[0]->value.id.name, data);
+  
 
   return data;
 }
@@ -153,6 +156,7 @@ static Data call_matrix(Tree node, SymbolTable symbol_table)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = m;
+  result.matrix.is_temp = true;
 
   return result;
 }
@@ -183,9 +187,14 @@ static Data call_addition(Tree node, SymbolTable symbol_table)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = addition(m[0].matrix.value, m[1].matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m[0].matrix.value);
-  deleteMatrix(m[1].matrix.value);
+  if (m[0].matrix.is_temp) {
+    deleteMatrix(m[0].matrix.value);
+  }
+  if (m[1].matrix.is_temp) {
+    deleteMatrix(m[1].matrix.value);
+  }
 
   return result;
 }
@@ -216,9 +225,14 @@ static Data call_sub(Tree node, SymbolTable symbol_table)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = sub(m[0].matrix.value, m[1].matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m[0].matrix.value);
-  deleteMatrix(m[1].matrix.value);
+  if (m[0].matrix.is_temp) {
+    deleteMatrix(m[0].matrix.value);
+  }
+  if (m[1].matrix.is_temp) {
+    deleteMatrix(m[1].matrix.value);
+  }
 
   return result;
 }
@@ -248,9 +262,14 @@ static Data call_mult(Tree node, SymbolTable symbol_table)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = mult(m[0].matrix.value, m[1].matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m[0].matrix.value);
-  deleteMatrix(m[1].matrix.value);
+  if (m[0].matrix.is_temp) {
+    deleteMatrix(m[0].matrix.value);
+  }
+  if (m[1].matrix.is_temp) {
+    deleteMatrix(m[1].matrix.value);
+  }
 
   return result;
 }
@@ -280,8 +299,11 @@ static Data call_mult_scal(Tree node, SymbolTable symbol_table)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = mult_scal(m[0].matrix.value, m[1].number.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m[0].matrix.value);
+  if (m[0].matrix.is_temp) {
+    deleteMatrix(m[0].matrix.value);
+  }
 
   return result;
 }
@@ -311,8 +333,11 @@ static Data call_expo(Tree node, SymbolTable symbol_table)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = expo(m[0].matrix.value, m[1].number.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m[0].matrix.value);
+  if (m[0].matrix.is_temp) {
+    deleteMatrix(m[0].matrix.value);
+  }
 
   return result;
 }
@@ -335,8 +360,11 @@ static Data call_transpose(Tree node, SymbolTable symbol_table)
 
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = transpose(m.matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m.matrix.value);
+  if (m.matrix.is_temp) {
+    deleteMatrix(m.matrix.value);
+  }
 
   return result;
 }
@@ -365,8 +393,11 @@ static Data call_determinant(Tree node, SymbolTable symbol_table)
 
   result.number.type = DATA_NUMBER;
   result.number.value = determinant(m.matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m.matrix.value);
+  if (m.matrix.is_temp) {
+    deleteMatrix(m.matrix.value);
+  }
 
   return result;
 }
@@ -395,8 +426,11 @@ static Data call_invert(Tree node, SymbolTable symbol_table)
 
   result.matrix.type = DATA_NUMBER;
   result.matrix.value = invert(m.matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m.matrix.value);
+  if (m.matrix.is_temp) {
+    deleteMatrix(m.matrix.value);
+  }
 
   return result;
 }
@@ -422,9 +456,14 @@ static Data call_solve(Tree node, SymbolTable symbol_table)
   Matrix X = newMatrix(m[1].matrix.value->nbrows, m[1].matrix.value->nbcols);
   result.matrix.type = DATA_MATRIX;
   result.matrix.value = solve(m[0].matrix.value, m[1].matrix.value, X); //Won't work
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m[0].matrix.value);
-  deleteMatrix(m[1].matrix.value);
+  if (m[0].matrix.is_temp) {
+    deleteMatrix(m[0].matrix.value);
+  }
+  if (m[1].matrix.is_temp) {
+    deleteMatrix(m[1].matrix.value);
+  }
 
   return result;
 }
@@ -447,8 +486,11 @@ static Data call_rank(Tree node, SymbolTable symbol_table)
 
   result.number.type = DATA_NUMBER;
   result.number.value = rank(m.matrix.value);
+  result.matrix.is_temp = true;
 
-  deleteMatrix(m.matrix.value);
+  if (m.matrix.is_temp) {
+    deleteMatrix(m.matrix.value);
+  }
 
   return result;
 }
