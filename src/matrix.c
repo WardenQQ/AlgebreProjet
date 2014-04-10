@@ -88,19 +88,6 @@ Matrix aleatoire(Matrix m,E min,E max)
 	return m;
 }
 
-//renvoie un pointeur sur une copie de la matrice m1
-Matrix copie_matrix(Matrix m)
-{
-	int i,j;
-	Matrix new_m = newMatrix(m->nbrows,m->nbcols);
-
-	for(i = 0 ; i < m->nbrows;i++)
-		for(j=0;j<m->nbcols;j++)
-			setElt(new_m,i,j,getElt(m,i,j));
-
-	return new_m;
-}
-
 
 
 

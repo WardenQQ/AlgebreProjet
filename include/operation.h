@@ -3,6 +3,8 @@
 #include "matrix.h"
 typedef Matrix (*commande)(Matrix,Matrix);
 
+Matrix copie_matrix(Matrix m);
+
 Matrix addition(Matrix m1,Matrix m2);
 
 Matrix mult(Matrix m1,Matrix m2);

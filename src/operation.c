@@ -1,5 +1,17 @@
 #include "operation.h"
 
+Matrix copie_matrix(Matrix m)
+{
+  int i,j;
+  Matrix new_m = newMatrix(m->nbrows,m->nbcols);
+
+  for(i=0;i < m->nbrows;i++)
+    for(j = 0;j<m->nbcols;j++)
+      setElt(new_m,i,j,getElt(m,i,j));
+
+  return new_m;
+}
+
 Matrix addition(Matrix m1,Matrix m2)
 {
   if ((m1->nbcols != m2->nbcols) || (m1->nbrows != m2->nbrows))	
@@ -80,7 +92,7 @@ Matrix transpose(Matrix m)
 Matrix mult_scal(Matrix m ,E s)
 {	
   int i,j;
-  E e;
+  E e = 0;
   Matrix m_s = newMatrix(m->nbrows,m->nbcols);  
   for(i = 0;i < m->nbrows;i++)
   {
@@ -95,11 +107,15 @@ Matrix mult_scal(Matrix m ,E s)
 
 Matrix expo(Matrix m,int exposant)
 {
-  Matrix new_m = newMatrix(m->nbrows,m->nbcols);
-  new_m = copie_matrix(m);
+  Matrix new_m = copie_matrix(m);
+  Matrix tmp;
   for(;exposant>1;exposant--)
-    new_m = mult(new_m,new_m);
-
+  {
+    tmp = new_m;
+    new_m = mult(new_m,m);
+    deleteMatrix(tmp);
+  }
+  
   return new_m; 
 }
 
@@ -201,8 +217,8 @@ E determinant(Matrix m)
     fprintf(stderr,"Matrice non carré\n");
     exit(1);
   }
-  Matrix tmp = newMatrix(m->nbrows,m->nbcols);
-  tmp = copie_matrix(m);
+  
+  Matrix tmp = copie_matrix(m);
   c = triangulaire_det(tmp);
   for(i= 0;i<tmp->nbrows;i++)
   {
@@ -284,10 +300,12 @@ Matrix invert(Matrix m)
     return NULL;
   }
   Matrix m_inv; 
-  m_inv = copie_matrix(m);
-   
-  m_inv = mult_scal(transpose(comatrice(m_inv)),(1/determinant(m_inv)));
-  
+  Matrix co_m = comatrice(m);
+  Matrix co_t = transpose(co_m); 
+  m_inv = mult_scal(co_t,(1/determinant(m)));
+ 
+  deleteMatrix(co_m);
+  deleteMatrix(co_t); 
   return m_inv;
 }
 	
