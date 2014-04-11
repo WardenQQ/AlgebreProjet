@@ -448,10 +448,12 @@ E valeur_propre(Matrix A,E precision)
   {
     a_free = v_propre; 
     v_propre = mult(m_propre,v_propre);
+    deleteMatrix(a_free);
   
     if (precision > (plus_grande_compo_absolue(v_propre)-vp))
       ok = 1;
 
+    a_free = v_propre;
     vp = plus_grande_compo_absolue(v_propre);
     v_propre = mult_scal(v_propre,1/vp);
     deleteMatrix(a_free);
@@ -462,12 +464,12 @@ E valeur_propre(Matrix A,E precision)
 }
 
 
-void speedtest(commande c,int taille_min,int taille_max,int pas,int nb_sec)
+/*void speedtest(commande c,int taille_min,int taille_max,int pas,int nb_sec)
 {
   
 
 
-}
+}*/
 
 
 
