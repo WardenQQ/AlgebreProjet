@@ -77,9 +77,10 @@ Matrix identite(int nb_rows,int nb_columns)
 	return m;
 }
 
-Matrix aleatoire(Matrix m,E min,E max)
+Matrix aleatoire(int nb_rows, int nb_cols, E min, E max)
 {
 	int i,j;
+	Matrix m = newMatrix(nb_rows,nb_cols);
 	srand48(time(NULL));
 	for(i=0;i<m->nbrows;i++)
 		for(j=0;j<m->nbcols;j++)
