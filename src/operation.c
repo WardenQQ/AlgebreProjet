@@ -476,7 +476,8 @@ static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_s
   struct timeval start;
   struct timeval end;
 
-  for (int i = taille_min; i <= taille_max; i += pas) {
+  time_t t = 0;
+  for (int i = taille_min; i <= taille_max && t * 1000 > nb_sec; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
     Matrix B = aleatoire(i, i, DBL_MIN, DBL_MAX);
 
@@ -492,9 +493,6 @@ static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_s
     deleteMatrix(A);
     deleteMatrix(B);
     deleteMatrix(C);
-    if ((end.tv_usec - start.tv_usec) / 1000000 > t) {
-      break;
-    };
   }
 }
 static void speedtest_sub(int taille_min, int taille_max, int pas, int nb_sec);
