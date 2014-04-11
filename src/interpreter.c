@@ -126,7 +126,7 @@ static Data call_matrix(Tree node, SymbolTable symbol_table)
   }
 
   int nb_rows = node->count;
-  int nb_columns = node->child[0]->count;
+  size_t nb_columns = node->child[0]->count;
 
   Matrix m = newMatrix(nb_rows, nb_columns);
 
@@ -138,7 +138,7 @@ static Data call_matrix(Tree node, SymbolTable symbol_table)
       return result;
     }
 
-    if (list->count != (int)nb_columns) {
+    if (list->count != nb_columns) {
       fprintf(stderr, "List %d is of same size as list 0 in function %s\n",
           i, node->value.id.name);
       return result;
