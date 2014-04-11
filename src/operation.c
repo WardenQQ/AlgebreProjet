@@ -354,7 +354,7 @@ void triangulaire(Matrix A,Matrix B)
 
 Matrix solve(Matrix A,Matrix B)
 {
-  Matrix X = newMatrix(A->nbrows);
+  Matrix X = newMatrix(A->nbrows,1);
   Matrix new_A = copie_matrix(A);
   Matrix new_B = copie_matrix(B);
   triangulaire(new_A,new_B);
@@ -471,6 +471,8 @@ E valeur_propre(Matrix A,E precision)
 
 
 }*/
+
+
 
 
 

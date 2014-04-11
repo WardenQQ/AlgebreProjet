@@ -41,7 +41,7 @@ void remontee(Matrix A,Matrix B,Matrix X);
 
 void triangulaire(Matrix A,Matrix B);
 
-Matrix solve(Matrix A,Matrix B,Matrix X);
+Matrix solve(Matrix A,Matrix B);
 
 void addmultiple(Matrix A,Matrix B,int i,int j,E c);
 
