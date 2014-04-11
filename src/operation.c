@@ -471,13 +471,14 @@ E valeur_propre(Matrix A,E precision)
   return vp;
 }
 
-static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_sec, FILE * file)
+static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_sec)
 {
+  FILE * file = fopen("./plot.dat", "w");
   struct timeval start;
   struct timeval end;
 
   time_t t = 0;
-  for (int i = taille_min; i <= taille_max && t * 1000 > nb_sec; i += pas) {
+  for (int i = taille_min; i <= taille_max && t < nb_sec * 1000000; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
     Matrix B = aleatoire(i, i, DBL_MIN, DBL_MAX);
 
@@ -485,8 +486,7 @@ static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_s
     Matrix C = addition(A, B);
     gettimeofday(&end, NULL);
 
-    time_t t = (end.tv_sec * 1000 + end.tv_usec / 1000) - 
-      (start.tv_sec * 1000 + start.tv_usec / 1000);
+    t = (end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec);
 
     fprintf(file, "%d %ld\n", i, t);
 
@@ -494,6 +494,8 @@ static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_s
     deleteMatrix(B);
     deleteMatrix(C);
   }
+
+  fclose(file);
 }
 static void speedtest_sub(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_mult(int taille_min, int taille_max, int pas, int nb_sec);
@@ -507,13 +509,16 @@ static void speedtest_rank(int taille_min, int taille_max, int pas, int nb_sec);
 
 void speedtest(char *commande, int taille_min, int taille_max, int pas, int nb_sec)
 {
-  FILE * file = fopen("./graph.dat", "w");
+  FILE * file = fopen("./graph", "w");
 
   fprintf(file, "set xlabel \"Taille des matrices\"\n");
   fprintf(file, "set ylabel \"Temps en microsecondes\"\n");
+  fprintf(file, "set terminal png size 640,480 enhanced font \"Helvetica,20\"\n");
+  fprintf(file, "set output \"graph.png\"\n");
+  fprintf(file, "plot \"plot.dat\" with lines\n");
 
   if (strncmp(commande, "addition", STRING_MAX) == 0) {
-    speedtest_addition(taille_min, taille_max, pas, nb_sec, file);
+    speedtest_addition(taille_min, taille_max, pas, nb_sec);
   } else if (strncmp(commande, "sub", STRING_MAX) == 0) {
   } else if (strncmp(commande, "mult", STRING_MAX) == 0) {
   } else if (strncmp(commande, "mult_scal", STRING_MAX) == 0) {
