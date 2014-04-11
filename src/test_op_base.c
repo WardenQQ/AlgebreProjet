@@ -5,7 +5,7 @@ int main()
 {
   Matrix a = newMatrix(3,3);
   Matrix m;
-  a = aleatoire(a,0,100);
+  a = aleatoire(3, 3, 0, 100);
   
   displayMatrix(a);
   /*

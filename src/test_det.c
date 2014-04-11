@@ -1,15 +1,16 @@
+#include <stdio.h>
+
 #include "matrix.h"
 #include "operation.h"
 
 
 int main()
 {
-  Matrix a = newMatrix(3,3);
+  Matrix a = aleatoire(3, 3, 0, 100);
 
-  a = aleatoire(a,0,100);
-
-  printf("det = %f\n",determinant(a));
+  printf("det = %f\n", determinant(a));
   
   deleteMatrix(a);
+
   return 0;
 }

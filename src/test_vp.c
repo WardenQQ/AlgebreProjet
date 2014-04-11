@@ -1,11 +1,12 @@
+#include <stdio.h>
+
 #include "matrix.h"
 #include "operation.h"
 
 int main()
 {
-  Matrix m = newMatrix(3,3);
 
-  m = aleatoire(m,0,100);
+  Matrix m = aleatoire(3, 3, 0, 100);
 
   printf("plus grande valeur propre : %f\n",valeur_propre(m,0.003));
 

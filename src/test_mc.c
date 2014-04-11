@@ -4,11 +4,11 @@
 
 int main()
 {
-  Matrix m = newMatrix(5,2);
-  m = aleatoire(m,0,10);
+  Matrix m = aleatoire(5, 2, 0, 10);
   displayMatrix(m);
   displayMatrix(transpose(m)); 
 
+  deleteMatrix(m);
 
   return 0;
 }

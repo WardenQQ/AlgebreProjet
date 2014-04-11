@@ -453,9 +453,8 @@ static Data call_solve(Tree node, SymbolTable symbol_table)
     }
   }
 
-  Matrix X = newMatrix(m[1].matrix.value->nbrows, m[1].matrix.value->nbcols);
   result.matrix.type = DATA_MATRIX;
-  result.matrix.value = solve(m[0].matrix.value, m[1].matrix.value, X); //Won't work
+  result.matrix.value = solve(m[0].matrix.value, m[1].matrix.value); //Won't work
   result.matrix.is_temp = true;
 
   if (m[0].matrix.is_temp) {
