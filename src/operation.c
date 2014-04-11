@@ -1,3 +1,6 @@
+#include <float.h>
+#include <sys/time.h>
+
 #include "operation.h"
 
 Matrix copie_matrix(Matrix m)
@@ -464,15 +467,58 @@ E valeur_propre(Matrix A,E precision)
   return vp;
 }
 
-
-/*void speedtest(commande c,int taille_min,int taille_max,int pas,int nb_sec)
+static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_sec, FILE * file)
 {
-  
+  struct timeval start;
+  struct timeval end;
 
+  for (int i = taille_min; i <= taille_max; i += pas) {
+    Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
+    Matrix B = aleatoire(i, i, DBL_MIN, DBL_MAX);
 
-}*/
+    gettimeofday(&start);
+    Matrix C = addition(A, B);
+    gettimeofday(&end);
 
+    fprintf(file, "%ld %ld\n", i, end.tv_usec - start.tv_usec);
 
+    deleteMatrix(A);
+    deleteMatrix(B);
+    deleteMatrix(C);
+    if ((end.tv_usec - start.tv_usec) / 1000000 > nb_sec) {
+      break;
+    };
+  }
+}
+static void speedtest_sub(int taille_min, int taille_max, int pas, int nb_sec);
+static void speedtest_mult(int taille_min, int taille_max, int pas, int nb_sec);
+static void speedtest_mult_scal(int taille_min, int taille_max, int pas, int nb_sec);
+static void speedtest_expo(int taille_min, int taille_max, int pas, int nb_sec);
+static void speedtest_transpose(int taille_min, int taille_max, int pas, int nb_sec);
+static void speedtest_determinant(int taille_min, int taille_max, int pas, int nb_sec);
+static void speedtest_invert(int taille_min, int taille_max, int pas, int nb_sec);
+static void speedtest_solve(int taille_min, int taille_max, int pas, int nb_sec);
+static void speedtest_rank(int taille_min, int taille_max, int pas, int nb_sec);
 
+void speedtest(char *commande, int taille_min, int taille_max, int pas, int nb_sec)
+{
+  FILE * file = fopen("./graph.dat", "w");
 
+  fprintf(file, "set xlabel \"Taille des matrices\"\n");
+  fprintf(file, "set ylabel \"Temps en microsecondes\"\n");
 
+  if (strncmp(commande, "addition", STRING_MAX) == 0) {
+    speedtest_addition(taille_min, taille_max, pas, nb_sec);
+  } else if (strncmp(commande, "sub", STRING_MAX) == 0) {
+  } else if (strncmp(commande, "mult", STRING_MAX) == 0) {
+  } else if (strncmp(commande, "mult_scal", STRING_MAX) == 0) {
+  } else if (strncmp(commande, "expo", STRING_MAX) == 0) {
+  } else if (strncmp(commande, "transpose", STRING_MAX) == 0) {
+  } else if (strncmp(commande, "determinant", STRING_MAX) == 0) {
+  } else if (strncmp(commande, "invert", STRING_MAX) == 0) {
+  } else if (strncmp(commande, "solve", STRING_MAX) == 0) {
+  } else if (strncmp(commande, "rank", STRING_MAX) == 0) {
+  }
+
+  fclose(file);
+}
