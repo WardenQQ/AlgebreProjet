@@ -24,8 +24,6 @@ void displayMatrix(Matrix m);
 
 Matrix identite(int nb_rows,int nb_columns);
 
-Matrix aleatoire(Matrix m,E min,E max);
-
-Matrix copie_matrix(Matrix m);
+Matrix aleatoire(int nb_rows, int nb_cols, E min, E max);
 
 #endif
