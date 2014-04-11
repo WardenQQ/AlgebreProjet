@@ -422,7 +422,7 @@ E valeur_propre(Matrix A,E precision)
 {
   Matrix m_propre = copie_matrix(A);
   Matrix v_propre = newMatrix(m_propre->nbrows,1);
-  E vp;
+  E vp=0;
   int i,j;
   j = plus_grande_compo(m_propre);
   for(i=0 ; i < v_propre->nbrows;i++)
@@ -436,21 +436,28 @@ E valeur_propre(Matrix A,E precision)
       setElt(v_propre,i,0,0);
     }
   }
-     
+  /*   
   v_propre = mult(m_propre,v_propre);
+  Matrix a_free = v_propre;
   vp = plus_grande_compo_absolue(v_propre);
   v_propre = mult_scal(v_propre,1/vp);
+  deleteMatrix(a_free);*/
+  Matrix a_free;
   int ok = 0;
   while(ok == 0)
   {
+    a_free = v_propre; 
     v_propre = mult(m_propre,v_propre);
+  
     if (precision > (plus_grande_compo_absolue(v_propre)-vp))
       ok = 1;
 
     vp = plus_grande_compo_absolue(v_propre);
     v_propre = mult_scal(v_propre,1/vp);
+    deleteMatrix(a_free);
   } 
 
+  deleteMatrix(m_propre);
   return vp;
 }
 
