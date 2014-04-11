@@ -352,8 +352,9 @@ void triangulaire(Matrix A,Matrix B)
 }
 
 
-Matrix solve(Matrix A,Matrix B,Matrix X)
+Matrix solve(Matrix A,Matrix B)
 {
+  Matrix X = newMatrix(A->nbrows);
   Matrix new_A = copie_matrix(A);
   Matrix new_B = copie_matrix(B);
   triangulaire(new_A,new_B);
