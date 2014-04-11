@@ -1,7 +1,9 @@
+#include <string.h>
 #include <float.h>
 #include <sys/time.h>
 
 #include "operation.h"
+#include "limits.h"
 
 Matrix copie_matrix(Matrix m)
 {
@@ -476,11 +478,11 @@ static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_s
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
     Matrix B = aleatoire(i, i, DBL_MIN, DBL_MAX);
 
-    gettimeofday(&start);
+    gettimeofday(&start, NULL);
     Matrix C = addition(A, B);
-    gettimeofday(&end);
+    gettimeofday(&end, NULL);
 
-    fprintf(file, "%ld %ld\n", i, end.tv_usec - start.tv_usec);
+    fprintf(file, "%d %ld\n", i, end.tv_usec - start.tv_usec);
 
     deleteMatrix(A);
     deleteMatrix(B);
@@ -508,7 +510,7 @@ void speedtest(char *commande, int taille_min, int taille_max, int pas, int nb_s
   fprintf(file, "set ylabel \"Temps en microsecondes\"\n");
 
   if (strncmp(commande, "addition", STRING_MAX) == 0) {
-    speedtest_addition(taille_min, taille_max, pas, nb_sec);
+    speedtest_addition(taille_min, taille_max, pas, nb_sec, file);
   } else if (strncmp(commande, "sub", STRING_MAX) == 0) {
   } else if (strncmp(commande, "mult", STRING_MAX) == 0) {
   } else if (strncmp(commande, "mult_scal", STRING_MAX) == 0) {

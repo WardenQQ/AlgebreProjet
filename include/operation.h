@@ -55,6 +55,6 @@ E plus_grande_compo_absolue(Matrix A);
 
 E valeur_propre(Matrix A,E precision);
 
-void speedtest(commande c,int taille_min,int taille_max,int pas,int nb_sec);
+void speedtest(char * commande, int taille_min, int taille_max, int pas, int nb_sec);
 
 #endif
