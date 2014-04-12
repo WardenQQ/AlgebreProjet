@@ -1,8 +1,9 @@
 #include <stdio.h>
-#include "tree.h"
+
+#include "interpreter.h"
 #include "parser.h"
 #include "tokens.h"
-#include "interpreter.h"
+#include "tree.h"
 
 // TODO: message d'erreur
 
@@ -13,31 +14,11 @@ static Tree id_followup(Token *lookahead, Tree node);
 static void param_list(Token *lookahead, Tree parent);
 static void param(Token *lookahead, Tree parent);
 static void optparam(Token *lookahead, Tree parent);
-static void vector(Token *lookahead, Tree parent);
-static void vectorparam(Token *lookahead, Tree parent);
-static void optvectorparam(Token *lookahead, Tree parent);
+static void list(Token *lookahead, Tree parent);
 
 Tree parser(Token *lookahead)
 {
   return statement(lookahead);
-}
-
-void parsing_loop()
-{
-  SymbolTable symbol_table = newSymbolTable();
-  Token lookahead;
-  do {
-    printf("> ");
-    fflush(stdout);
-    lookahead = gettoken();
-
-    Tree root = statement(&lookahead);
-    if (root != NULL) {
-      interpreter(root, symbol_table);
-      deleteTree(root);
-    }
-
-  } while (lookahead.type != TOK_EOF);
 }
 
 static void match(enum token_type first, Token *lookahead)
@@ -56,11 +37,11 @@ static Tree statement(Token *lookahead)
     case TOK_EOF:
       return NULL;
     case TOK_SEMI_COLON:
-      //match(TOK_SEMI_COLON, lookahead);
       return NULL;
     case TOK_ID:// Fall through!!
     case TOK_NUMBER:
       node = expression(lookahead);
+      //TODO: s'occuper de cette vérification
       //match(TOK_SEMI_COLON, lookahead);
       return node;
     default:
@@ -84,7 +65,7 @@ static Tree expression(Token *lookahead)
       return node;
     case TOK_LEFT_BRACKET:
       setValue(node, vec);
-      vector(lookahead, node);
+      list(lookahead, node);
       return node;
     default:
         return NULL;
@@ -151,51 +132,15 @@ static void optparam(Token *lookahead, Tree parent)
   }
 }
 
-static void vector(Token *lookahead, Tree parent)
+static void list(Token *lookahead, Tree parent)
 {
   switch (lookahead->type) {
     case TOK_LEFT_BRACKET:
       match(TOK_LEFT_BRACKET, lookahead);
-      vectorparam(lookahead, parent);
-      optvectorparam(lookahead, parent);
+      param_list(lookahead, parent);
       match(TOK_RIGHT_BRACKET, lookahead);
       break;
     default:
-      break;
-  }
-}
-
-static void vectorparam(Token *lookahead, Tree parent)
-{
-  Tree child;
-  switch (lookahead->type) {
-    case TOK_ID:
-      child = newTree();
-      setValue(child, *lookahead);
-      addChild(parent, child);
-      match(TOK_ID, lookahead);
-      break;
-    case TOK_NUMBER:
-      child = newTree();
-      setValue(child, *lookahead);
-      addChild(parent, child);
-      match(TOK_NUMBER, lookahead);
-      break;
-    default:
-      break;
-  }
-}
-
-static void optvectorparam(Token *lookahead, Tree parent)
-{
-  switch (lookahead->type) {
-    case TOK_COMMA:
-      match(TOK_COMMA, lookahead);
-      vectorparam(lookahead, parent);
-      optvectorparam(lookahead, parent);
-      break;
-    default:
-      // Empty token
       break;
   }
 }
