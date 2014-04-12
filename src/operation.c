@@ -9,11 +9,10 @@
 
 Matrix copie_matrix(Matrix m)
 {
-  int i, j;
   Matrix m_copie = newMatrix(m->nbrows, m->nbcols);
 
-  for (i = 0; i < m->nbrows; i++) {
-    for (j = 0; j < m->nbcols; j++) {
+  for (int i = 0; i < m->nbrows; i++) {
+    for (int j = 0; j < m->nbcols; j++) {
       setElt(m_copie, i, j, getElt(m, i, j));
     }
   }
@@ -30,10 +29,8 @@ Matrix addition(Matrix m1,Matrix m2)
   }
 
   Matrix m_add = newMatrix(m1->nbrows, m1->nbcols);
-  int i, j;
-	
-  for (i = 0; i < m1->nbrows; i++) {
-    for (j = 0; j < m1->nbcols; j++) {
+  for (int i = 0; i < m1->nbrows; i++) {
+    for (int j = 0; j < m1->nbcols; j++) {
       setElt(m_add, i, j, getElt(m1, i, j) + getElt(m2, i, j));
     }
   }
@@ -50,9 +47,8 @@ Matrix sub(Matrix m1, Matrix m2)
   }
 
   Matrix m_sub = newMatrix(m1->nbrows, m1->nbcols);
-  int i, j;
-  for(i = 0; i < m1->nbrows; i++) {
-    for(j = 0; j < m1->nbcols; j++) {
+  for(int i = 0; i < m1->nbrows; i++) {
+    for(int j = 0; j < m1->nbcols; j++) {
       setElt(m_sub, i, j, getElt(m1, i, j) - getElt(m2, i, j));
     }
   }
@@ -60,7 +56,7 @@ Matrix sub(Matrix m1, Matrix m2)
   return m_sub;
 }
 
-Matrix mult(Matrix m1,Matrix m2)
+Matrix mult(Matrix m1, Matrix m2)
 {
   if (m1->nbcols != m2->nbrows) {
     fprintf(stderr, "Le nombre de colonnes de la matrice 1 est différent"
@@ -69,68 +65,64 @@ Matrix mult(Matrix m1,Matrix m2)
     return NULL;
   }
 	
-  Matrix new_a = newMatrix(m1->nbrows,m2->nbcols);
-  int i,j,k;
-  E mult = 0;
-  for(i = 0;i < m1->nbrows;i++)
-  {
-    for(j = 0;j < m2->nbcols;j++)
-    {
-      for(k = 0;k < m1->nbcols ;k++)
-      {
-        mult = mult + (getElt(m1,i,k) * getElt(m2,k,j));
+  Matrix m_mult = newMatrix(m1->nbrows, m2->nbcols);
+
+  for(int i = 0; i < m1->nbrows; i++) {
+    for(int j = 0; j < m2->nbcols; j++) {
+    E mult = 0;
+      for(int k = 0; k < m1->nbcols; k++) {
+        mult = mult + (getElt(m1, i, k) * getElt(m2, k, j));
       }	
-    setElt(new_a,i,j,mult);
-    mult = 0;
+    setElt(m_mult, i, j, mult);
     }
   }
 
-  return new_a;
+  return m_mult;
+}
+
+Matrix mult_scal(Matrix m, E s)
+{	
+  Matrix m_mult = newMatrix(m->nbrows, m->nbcols);  
+
+  for(int i = 0; i < m->nbrows; i++) {
+    for(int j = 0; j < m->nbcols; j++) {
+      setElt(m_mult, i, j, getElt(m, i, j) * s);
+    }
+  }
+
+  return m_mult;
+}
+
+Matrix expo(Matrix m, int exposant)
+{
+  if (exposant < 1) {
+    fprintf(stderr, "L'exposant doit etre supérieur à 1.");
+    return NULL;
+  }
+
+  Matrix m_expo = copie_matrix(m);
+  for(; exposant>1; exposant--)
+  {
+    Matrix tmp = m_expo;
+    m_expo = mult(m_expo,m);
+    deleteMatrix(tmp);
+  }
+  
+  return m_expo; 
 }
 
 Matrix transpose(Matrix m)
 {
-  int i,j;
-  Matrix m_t = newMatrix(m->nbcols,m->nbrows);
-  for(i = 0;i < m->nbrows;i++)
+  Matrix m_t = newMatrix(m->nbcols, m->nbrows);
+  for(int i = 0; i < m->nbrows; i++)
   {
-    for(j = 0;j < m->nbcols;j++)
+    for(int j = 0; j < m->nbcols; j++)
     {
-      setElt(m_t,j,i,getElt(m,i,j));
+      setElt(m_t, j, i, getElt(m, i, j));
     }
   }
  
   return m_t;
-}
-
-Matrix mult_scal(Matrix m ,E s)
-{	
-  int i,j;
-  E e = 0;
-  Matrix m_s = newMatrix(m->nbrows,m->nbcols);  
-  for(i = 0;i < m->nbrows;i++)
-  {
-    for(j = 0;j < m->nbcols;j++)
-    {
-      e = getElt(m,i,j)*s;
-      setElt(m_s,i,j,e);
-    }
-  }
-  return m_s;
-}
-
-Matrix expo(Matrix m,int exposant)
-{
-  Matrix new_m = copie_matrix(m);
-  Matrix tmp;
-  for(;exposant>1;exposant--)
-  {
-    tmp = new_m;
-    new_m = mult(new_m,m);
-    deleteMatrix(tmp);
-  }
-  
-  return new_m; 
 }
 
 E valeur_absolue(E e)

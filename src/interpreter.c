@@ -280,7 +280,7 @@ static Data call_mult_scal(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "Function %s expects 2 arguments\n", node->token.id.name);
+    fprintf(stderr, "La fonction %s s'attend à 2 arguments.\n", node->token.id.name);
     return result;
   }
 
@@ -289,18 +289,18 @@ static Data call_mult_scal(Tree node, SymbolTable symbol_table)
     m[i] = extract_data(node->child[i], symbol_table);
   }
   if (m[0].common.type != DATA_MATRIX) {
-    fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
+    fprintf(stderr, "Dans la fonction %s, l'argument 1 n'est pas du type matrice.\n",
         node->token.id.name);
     return result;
   }
   if (m[1].common.type != DATA_NUMBER) {
-    fprintf(stderr, "In function %s, argument 1 is not of type number.\n",
+    fprintf(stderr, "Dans la fonction %s, l'argument 2 n'est pas du type nombre.\n",
         node->token.id.name);
     return result;
   }
 
-  result.matrix.type = DATA_MATRIX;
   result.matrix.value = mult_scal(m[0].matrix.value, m[1].number.value);
+  result.matrix.type = DATA_MATRIX;
   result.matrix.is_temp = true;
 
   if (m[0].matrix.is_temp) {
@@ -314,7 +314,7 @@ static Data call_expo(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "Function %s expects 2 arguments\n", node->token.id.name);
+    fprintf(stderr, "La fonction %s s'attend à 2 arguments.\n", node->token.id.name);
     return result;
   }
 
@@ -323,18 +323,21 @@ static Data call_expo(Tree node, SymbolTable symbol_table)
     m[i] = extract_data(node->child[i], symbol_table);
   }
   if (m[0].common.type != DATA_MATRIX) {
-    fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
+    fprintf(stderr, "Dans la fonction %s, l'argument 1 n'est pas du type matrice.\n",
         node->token.id.name);
     return result;
   }
   if (m[1].common.type != DATA_NUMBER) {
-    fprintf(stderr, "In function %s, argument 1 is not of type number.\n",
+    fprintf(stderr, "Dans la fonction %s, l'argument 2 n'est pas du type nombre.\n",
         node->token.id.name);
     return result;
   }
 
-  result.matrix.type = DATA_MATRIX;
   result.matrix.value = expo(m[0].matrix.value, m[1].number.value);
+  if (result.matrix.value == NULL) {
+    return result;
+  }
+  result.matrix.type = DATA_MATRIX;
   result.matrix.is_temp = true;
 
   if (m[0].matrix.is_temp) {
@@ -348,20 +351,20 @@ static Data call_transpose(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
-    fprintf(stderr, "Function %s expects 1 arguments\n", node->token.id.name);
+    fprintf(stderr, "La fonction %s s'attend à 1 arguments.\n", node->token.id.name);
     return result;
   }
 
   Data m;
   m = extract_data(node->child[0], symbol_table);
   if (m.common.type != DATA_MATRIX) {
-    fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
+    fprintf(stderr, "Dans la fonction %s, l'argument 1 n'est pas du type matrice.\n",
         node->token.id.name);
     return result;
   }
 
-  result.matrix.type = DATA_MATRIX;
   result.matrix.value = transpose(m.matrix.value);
+  result.matrix.type = DATA_MATRIX;
   result.matrix.is_temp = true;
 
   if (m.matrix.is_temp) {
