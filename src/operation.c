@@ -471,6 +471,49 @@ E valeur_propre(Matrix A,E precision)
   return vp;
 }
 
+Matrix least_estimate(Matrix A,char * nom_fichier)
+{
+  if (nom_fichier == NULL)
+  {
+      return NULL;
+  }
+  int i;
+
+  Matrix new_A = newMatrix(A->nbrows,2);
+  Matrix new_B = newMatrix(A->nbrows,1);
+  // init matrices
+  for(i = 0;i<A->nbrows;i++)
+  {
+    setElt(new_A,i,0,getElt(A,i,0));
+    setElt(new_A,i,1,1);
+    setElt(new_B,i,0,getElt(A,i,1));
+  } 
+  Matrix new_A_T = transpose(new_A);
+  Matrix A_T_A = mult(new_A_T,new_A);
+  Matrix A_T_B = mult(new_A_T,new_B);
+  Matrix X = solve(A_T_A,A_T_B);
+  Matrix residu = newMatrix(A->nbrows,1);
+  E x,y;
+  for(i=0;i<A->nbrows;i++)
+  {
+    y = getElt(new_B,i,0);
+    x = (getElt(new_A,i,0) * getElt(X,0,0)) + getElt(X,1,0);
+    setElt(residu,i,0,(y-x));
+  }
+
+
+
+  deleteMatrix(new_A);
+  deleteMatrix(new_A_T);
+  deleteMatrix(new_B);
+  deleteMatrix(A_T_A);
+  deleteMatrix(A_T_B);
+
+  return X;
+}
+
+
+
 static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_sec)
 {
   FILE * file = fopen("./plot.dat", "w");
@@ -497,6 +540,7 @@ static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_s
 
   fclose(file);
 }
+
 static void speedtest_sub(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_mult(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_mult_scal(int taille_min, int taille_max, int pas, int nb_sec);
