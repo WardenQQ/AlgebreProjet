@@ -6,7 +6,7 @@
 
 #include "tokens.h"
 
-union token gettoken()
+Token gettoken()
 {
   // Initialise last_char à un caractère ignoré
   static int last_char = '\0';
@@ -19,7 +19,7 @@ union token gettoken()
     last_char = getchar();
   }
 
-  union token tok;
+  Token tok;
 
   switch (last_char) {
     case EOF:

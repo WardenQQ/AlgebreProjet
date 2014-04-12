@@ -32,13 +32,13 @@ struct token_number {
   double value;
 };
 
-union token {
+typedef union token {
   enum token_type type;
   struct token_number number;
   //TOK_ID or TOK_FUNCTION
   struct token_id id;
-};
+} Token;
 
-union token gettoken();
+Token gettoken();
 
 #endif //_TOKENS_H_

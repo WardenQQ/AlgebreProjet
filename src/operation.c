@@ -477,7 +477,7 @@ static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_s
   struct timeval start;
   struct timeval end;
 
-  time_t t = 0;
+  unsigned long long t = 0;
   for (int i = taille_min; i <= taille_max && t < nb_sec * 1000000; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
     Matrix B = aleatoire(i, i, DBL_MIN, DBL_MAX);
@@ -486,9 +486,9 @@ static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_s
     Matrix C = addition(A, B);
     gettimeofday(&end, NULL);
 
-    t = (end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec);
+    t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 
-    fprintf(file, "%d %ld\n", i, t);
+    fprintf(file, "%d %llu\n", i, t);
 
     deleteMatrix(A);
     deleteMatrix(B);

@@ -5,15 +5,16 @@
 
 #include "tokens.h"
 
+//TODO: Changer value en token.
 typedef struct tree {
   size_t count;
   size_t size;
   struct tree **child;
-  union token value;
+  Token value;
 } *Tree;
 
 Tree newTree();
-void setValue(Tree t, union token value);
+void setValue(Tree t, Token value);
 void setNbChild(Tree t, size_t nb);
 void addChild(Tree parent, Tree child);
 void deleteTree(Tree t);

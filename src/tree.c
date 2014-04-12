@@ -20,7 +20,7 @@ Tree newTree()
   return t;
 }
 
-void setValue(Tree t, union token value)
+void setValue(Tree t, Token value)
 {
   t->value = value;
 }

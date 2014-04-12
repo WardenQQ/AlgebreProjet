@@ -6,21 +6,21 @@
 
 // TODO: message d'erreur
 
-static void match(enum token_type first, union token *lookahead);
-static Tree statement(union token *lookahead);
-static Tree expression(union token *lookahead);
-static Tree id_followup(union token *lookahead, Tree node);
-static void param_list(union token *lookahead, Tree parent);
-static void param(union token *lookahead, Tree parent);
-static void optparam(union token *lookahead, Tree parent);
-static void vector(union token *lookahead, Tree parent);
-static void vectorparam(union token *lookahead, Tree parent);
-static void optvectorparam(union token *lookahead, Tree parent);
+static void match(enum token_type first, Token *lookahead);
+static Tree statement(Token *lookahead);
+static Tree expression(Token *lookahead);
+static Tree id_followup(Token *lookahead, Tree node);
+static void param_list(Token *lookahead, Tree parent);
+static void param(Token *lookahead, Tree parent);
+static void optparam(Token *lookahead, Tree parent);
+static void vector(Token *lookahead, Tree parent);
+static void vectorparam(Token *lookahead, Tree parent);
+static void optvectorparam(Token *lookahead, Tree parent);
 
 void parsing_loop()
 {
   SymbolTable symbol_table = newSymbolTable();
-  union token lookahead;
+  Token lookahead;
   do {
     printf("> ");
     fflush(stdout);
@@ -35,7 +35,7 @@ void parsing_loop()
   } while (lookahead.type != TOK_EOF);
 }
 
-static void match(enum token_type first, union token *lookahead)
+static void match(enum token_type first, Token *lookahead)
 {
   if (lookahead->type == first) {
     *lookahead = gettoken();
@@ -44,7 +44,7 @@ static void match(enum token_type first, union token *lookahead)
   }
 }
 
-static Tree statement(union token *lookahead)
+static Tree statement(Token *lookahead)
 {
   Tree node;
   switch (lookahead->type) {
@@ -63,10 +63,10 @@ static Tree statement(union token *lookahead)
   }
 }
 
-static Tree expression(union token *lookahead)
+static Tree expression(Token *lookahead)
 {
   Tree node = newTree();
-  union token vec = {.type = TOK_VECTOR};
+  Token vec = {.type = TOK_VECTOR};
   switch (lookahead->type) {
     case TOK_ID:
       setValue(node, *lookahead);
@@ -86,7 +86,7 @@ static Tree expression(union token *lookahead)
   }
 }
 
-static Tree id_followup(union token *lookahead, Tree node)
+static Tree id_followup(Token *lookahead, Tree node)
 {
   Tree assign = NULL;
   Tree rvalue = NULL;
@@ -112,7 +112,7 @@ static Tree id_followup(union token *lookahead, Tree node)
   }
 }
 
-static void param_list(union token *lookahead, Tree parent)
+static void param_list(Token *lookahead, Tree parent)
 {
   switch (lookahead->type) {
     case TOK_ID:
@@ -126,13 +126,13 @@ static void param_list(union token *lookahead, Tree parent)
   }
 }
 
-static void param(union token *lookahead, Tree parent)
+static void param(Token *lookahead, Tree parent)
 {
   Tree child = expression(lookahead);
   addChild(parent, child);
 }
 
-static void optparam(union token *lookahead, Tree parent)
+static void optparam(Token *lookahead, Tree parent)
 {
   switch (lookahead->type) {
     case TOK_COMMA:
@@ -146,7 +146,7 @@ static void optparam(union token *lookahead, Tree parent)
   }
 }
 
-static void vector(union token *lookahead, Tree parent)
+static void vector(Token *lookahead, Tree parent)
 {
   switch (lookahead->type) {
     case TOK_LEFT_BRACKET:
@@ -160,7 +160,7 @@ static void vector(union token *lookahead, Tree parent)
   }
 }
 
-static void vectorparam(union token *lookahead, Tree parent)
+static void vectorparam(Token *lookahead, Tree parent)
 {
   Tree child;
   switch (lookahead->type) {
@@ -181,7 +181,7 @@ static void vectorparam(union token *lookahead, Tree parent)
   }
 }
 
-static void optvectorparam(union token *lookahead, Tree parent)
+static void optvectorparam(Token *lookahead, Tree parent)
 {
   switch (lookahead->type) {
     case TOK_COMMA:

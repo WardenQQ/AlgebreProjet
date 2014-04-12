@@ -15,5 +15,6 @@
 #define _PARSER_H_
 
 void parsing_loop();
+void parser();
 
 #endif //_PARSER_H_

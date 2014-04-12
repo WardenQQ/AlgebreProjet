@@ -424,7 +424,7 @@ static Data call_invert(Tree node, SymbolTable symbol_table)
     return result;
   }
 
-  result.matrix.type = DATA_NUMBER;
+  result.matrix.type = DATA_MATRIX;
   result.matrix.value = invert(m.matrix.value);
   result.matrix.is_temp = true;
 
