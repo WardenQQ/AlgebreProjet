@@ -5,34 +5,36 @@
 #include "matrix.h"
 
 
-Matrix newMatrix(int nb_rows,int nb_columns)
+Matrix newMatrix(int nb_rows, int nb_columns)
 {
-	Matrix m;
-	if ((m = malloc(sizeof(struct matrix))) == NULL)
-	{
-		perror("Erreur de maloc :");
-	}
-	
-	if ((m->mat = (E *)malloc(sizeof(E) * (nb_rows * nb_columns))) == NULL)
-	{
-		perror("Erreur de maloc :");
-	}
-	m->nbrows = nb_rows;
-	m->nbcols = nb_columns;
+  Matrix m;
+  if (nb_rows < 1 || nb_columns < 1) {
+    fprintf(stderr, "La matrice doit etre de taille minimum 1x1");
+    return NULL;
+  }
 
-	return m;
+  if ((m = malloc(sizeof(struct matrix))) == NULL) {
+    perror("Erreur de malloc ");
+  }
+
+  if ((m->mat = malloc(sizeof(E) * (nb_rows * nb_columns))) == NULL) {
+    perror("Erreur de malloc ");
+  }
+
+  m->nbrows = nb_rows;
+  m->nbcols = nb_columns;
+
+  return m;
 }
 
 E getElt(Matrix m,int rows,int columns)
 {
-	return (m->mat[columns+(rows*(m->nbcols))]);//num de la colonne + (nombre de colonne * la ligne)
+  return m->mat[columns + (rows * (m->nbcols))];
 }
-
-
 
 void setElt(Matrix m,int row,int column,E val)
 {
-	m->mat[column + (row * m->nbcols)] = val;
+  m->mat[column + (row * m->nbcols)] = val;
 }
 
 void deleteMatrix(Matrix m)
@@ -41,6 +43,7 @@ void deleteMatrix(Matrix m)
 	free(m);
 }
 
+// TODO: Affichage de la matrice
 void displayMatrix(Matrix m)
 {
 	int i,j;
@@ -60,6 +63,7 @@ void displayMatrix(Matrix m)
 	printf("\n");
 }
 
+//TODO: Voir si on garde les fonction identite et aleatoire
 Matrix identite(int nb_rows,int nb_columns)
 {
 	Matrix m = newMatrix(nb_rows,nb_columns);
@@ -92,9 +96,3 @@ Matrix aleatoire(int nb_rows, int nb_cols, E min, E max)
 
 	return m;
 }
-
-
-
-
-
-

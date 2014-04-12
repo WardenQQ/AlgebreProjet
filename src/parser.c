@@ -64,7 +64,7 @@ static Tree statement(Token *lookahead)
 static Tree expression(Token *lookahead)
 {
   Tree node = newTree();
-  Token vec = {.type = TOK_VECTOR};
+  Token vec = {.type = TOK_LIST};
   switch (lookahead->type) {
     case TOK_ID:
       setValue(node, *lookahead);

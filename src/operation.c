@@ -9,14 +9,16 @@
 
 Matrix copie_matrix(Matrix m)
 {
-  int i,j;
-  Matrix new_m = newMatrix(m->nbrows,m->nbcols);
+  int i, j;
+  Matrix copie = newMatrix(m->nbrows, m->nbcols);
 
-  for(i=0;i < m->nbrows;i++)
-    for(j = 0;j<m->nbcols;j++)
-      setElt(new_m,i,j,getElt(m,i,j));
+  for(i = 0; i < m->nbrows; i++) {
+    for(j = 0; j < m->nbcols; j++) {
+      setElt(copie, i, j, getElt(m, i, j));
+    }
+  }
 
-  return new_m;
+  return copie;
 }
 
 Matrix addition(Matrix m1,Matrix m2)

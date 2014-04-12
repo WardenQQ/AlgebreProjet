@@ -18,7 +18,7 @@ enum token_type {
   TOK_NUMBER,
   TOK_ID,
 
-  TOK_VECTOR,
+  TOK_LIST,
   TOK_FUNCTION
 };
 

@@ -59,6 +59,8 @@ static Data extract_data(Tree node, SymbolTable symbol_table)
       data.number.type = DATA_NUMBER;
       data.number.value = node->token.number.value;
       break;
+    case TOK_LIST:
+      break;
     default:
       break;
   }
@@ -70,7 +72,7 @@ static Data assign(Tree node, SymbolTable symbol_table)
 {
   Data data = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "The assignement operator : is a binary operator\n");
+    fprintf(stderr, "L'opérateur ':' est un opérateur binaire.\n");
   }
 
   data = extract_data(node->child[1], symbol_table);
@@ -78,7 +80,6 @@ static Data assign(Tree node, SymbolTable symbol_table)
     data.matrix.is_temp = false;
   }
   add_entry(symbol_table, node->child[0]->token.id.name, data);
-  
 
   return data;
 }
@@ -111,7 +112,7 @@ static Data call_function(Tree node, SymbolTable symbol_table)
   } else if (strncmp(node->token.id.name, "quit", STRING_MAX) == 0) {
     exit(0);
   } else {
-    fprintf(stderr, "%s is not a function\n", node->token.id.name);
+    fprintf(stderr, "%s n'est pas un fonction.\n", node->token.id.name);
   }
 
   return data;
@@ -121,33 +122,36 @@ static Data call_matrix(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count < 1) {
-    fprintf(stderr, "Function %s expects at least 1 argument.\n", node->token.id.name);
+    fprintf(stderr, "La fonction %s s'attend à au moins un argument.\n",
+        node->token.id.name);
     return result;
   }
 
   int nb_rows = node->count;
-  size_t nb_columns = node->child[0]->count;
+  int nb_columns = node->child[0]->count;
 
   Matrix m = newMatrix(nb_rows, nb_columns);
 
   for (int i = 0; i < nb_rows; ++i) {
     Tree list = node->child[i];
-    if (list->token.type != TOK_VECTOR) {
-      fprintf(stderr, "Expected an argument of type list in function %s\n",
+    if (list->token.type != TOK_LIST) {
+      fprintf(stderr, "Dans la fonction %s l'argument n'est pas de type listes\n",
           node->token.id.name);
       return result;
     }
 
     if (list->count != nb_columns) {
-      fprintf(stderr, "List %d is of same size as list 0 in function %s\n",
-          i, node->token.id.name);
+      fprintf(stderr,
+          "Dans la fonction %s"
+          " les listes passés en argument doivent etre de meme taille.\n",
+          node->token.id.name);
       return result;
     }
 
     for (int j = 0; j < nb_columns; ++j) {
       Data element = extract_data(list->child[j], symbol_table);
       if (element.common.type != DATA_NUMBER) {
-        fprintf(stderr, "List contains a value which is not a number\n");
+        fprintf(stderr, "Les elements de la liste doivent etre du type nombre.\n");
         return result;
       }
       setElt(m, i, j, element.number.value);
@@ -165,7 +169,7 @@ static Data call_addition(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "Function %s expects 2 arguments\n", node->token.id.name);
+    fprintf(stderr, "La fonction %s s'attend à 2 arguments.\n", node->token.id.name);
     return result;
   }
 
@@ -173,15 +177,16 @@ static Data call_addition(Tree node, SymbolTable symbol_table)
   for (int i = 0; i < 2; ++i) {
     m[i] = extract_data(node->child[i], symbol_table);
     if (m[i].common.type != DATA_MATRIX) {
-      fprintf(stderr, "In function %s, argument %d is not of type matrix.\n",
-          node->token.id.name, i);
+      fprintf(stderr,
+          "Dans la fonction %s l'argument %d n'est pas de type matrice.\n",
+          node->token.id.name, i + 1);
       return result;
     }
   }
 
   if (m[0].matrix.value->nbrows != m[1].matrix.value->nbrows
       && m[0].matrix.value->nbcols != m[1].matrix.value->nbcols) {
-    fprintf(stderr, "In function %s, the matrices are not the same size.\n",
+    fprintf(stderr, "Dans la fonction %s.\n",
         node->token.id.name);
   }
 
