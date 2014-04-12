@@ -8,6 +8,9 @@
 #include "operation.h"
 
 static E valeur_absolue(E e);
+static int choixPivot(Matrix m, int i);
+static void swap_line(Matrix m, int l1, int l2);
+static void combine_line(Matrix m, E c1, int l1, E c2, int l2);
 
 Matrix copie_matrix(Matrix m)
 {
@@ -127,29 +130,85 @@ Matrix transpose(Matrix m)
   return m_t;
 }
 
-static E valeur_absolue(E e)
+E reduced_row_echelon_form(Matrix A, Matrix B)
 {
-	if (e < 0)
-	{
-		return (-e);
-	}
-	else return e;
+  int det = 1;
+
+  for (int i = 0; i < A->nbrows; ++i) {
+    int p = choixPivot(A, i);
+    if (p != -1) {
+      if (p != i) {
+        swap_line(A, i, p);
+        if (B != NULL) {
+          swap_line(B, i, p);
+        }
+        det *= -1;
+      }
+
+      for (int k = 0; k < i; ++k) {
+        E c1 = getElt(A, i, i);
+        E c2 = -getElt(A, k, i);
+        combine_line(A, 1, k, c2 / c1, i);
+        if (B != NULL) {
+        combine_line(B, 1, k, c2 / c1, i);
+        }
+      }
+
+      for (int k = i + 1; k < A->nbrows; ++k) {
+        E c1 = getElt(A, i, i);
+        E c2 = -getElt(A, k, i);
+        combine_line(A, c1, k, c2, i);
+        if (B != NULL) {
+        combine_line(B, c1, k, c2, i);
+        }
+        det *= c1;
+      }
+
+      E c1 = 1 / getElt(A, i, i);
+      combine_line(A, c1, i, 0, 0);
+      if (B != NULL) {
+        combine_line(B, c1, i, 0, 0);
+        det *= c1;
+      }
+    }
+  }
 }
 
-int choixPivot(Matrix m,int i)
+static E valeur_absolue(E e)
+{
+  return e >= 0 ? e : -e;
+}
+
+static int choixPivot(Matrix m, int i)
 {
   int p = i;
-  int j;
   E v = valeur_absolue(getElt(m,i,i));
-  for(j = i + 1; j < m->nbcols;j++)
-  {
-    if(valeur_absolue(getElt(m,j,i)) > v)
-    {
+  for(int j = i + 1; j < m->nbcols; j++) {
+    if(valeur_absolue(getElt(m, j, i)) > v) {
       p = j;
       v = valeur_absolue(getElt(m,j,i));
     }
   }
+
+  p = v == 0.0 ? -1 : p;
   return p;
+}
+
+static void swap_line(Matrix m, int l1, int l2)
+{
+  for (int i = 0; i < m->nbcols; ++i) {
+    E tmp = getElt(m, l1, i);
+    setElt(m, l1, i, getElt(m, l2, i));
+    setElt(m, l2, i, tmp);
+  }
+}
+
+static void combine_line(Matrix m, E c1, int l1, E c2, int l2)
+{
+  for (int i = 0; i < m->nbcols; ++i) {
+    E value = c1 * getElt(m, l1, i) + c2 * getElt(m, l2, i);
+    setElt(m, l1, i, value);
+  }
 }
 
 void echangeLigne_det(Matrix m,int i,int j)

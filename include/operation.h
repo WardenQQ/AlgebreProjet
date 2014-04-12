@@ -17,8 +17,7 @@ Matrix solve(Matrix A,Matrix B);
 int rank(Matrix A);
 Matrix least_estimate(Matrix A, char * nom_fichier);
 
-
-int choixPivot(Matrix m,int i);
+E reduced_row_echelon_form(Matrix A, Matrix B);
 
 void echangeLigne_det(Matrix m,int i,int j);
 
