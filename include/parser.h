@@ -14,7 +14,9 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 
+#include "tree.h"
+
 void parsing_loop();
-void parser();
+Tree parser(Token *lookahead);
 
 #endif //_PARSER_H_

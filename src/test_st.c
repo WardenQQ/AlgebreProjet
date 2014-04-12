@@ -3,8 +3,7 @@
 
 int main ()
 {
-  speedtest("addition",10,200,10,1);
-
+  speedtest("addition",100,10000,100,1);
 
   return 0;
 }

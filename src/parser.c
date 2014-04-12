@@ -17,6 +17,11 @@ static void vector(Token *lookahead, Tree parent);
 static void vectorparam(Token *lookahead, Tree parent);
 static void optvectorparam(Token *lookahead, Tree parent);
 
+Tree parser(Token *lookahead)
+{
+  return statement(lookahead);
+}
+
 void parsing_loop()
 {
   SymbolTable symbol_table = newSymbolTable();
