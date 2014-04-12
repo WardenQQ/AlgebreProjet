@@ -7,6 +7,8 @@
 #include "limits.h"
 #include "operation.h"
 
+static E valeur_absolue(E e);
+
 Matrix copie_matrix(Matrix m)
 {
   Matrix m_copie = newMatrix(m->nbrows, m->nbcols);
@@ -125,7 +127,7 @@ Matrix transpose(Matrix m)
   return m_t;
 }
 
-E valeur_absolue(E e)
+static E valeur_absolue(E e)
 {
 	if (e < 0)
 	{
@@ -212,8 +214,6 @@ E triangulaire_det(Matrix m)
 
 E determinant(Matrix m)
 {
-  E c;
-  int i;
   if ((m->nbrows == 1) && (m->nbcols == 1))
   {
     return (getElt(m,0,0));
@@ -225,15 +225,70 @@ E determinant(Matrix m)
   }
   
   Matrix tmp = copie_matrix(m);
-  c = triangulaire_det(tmp);
-  for(i= 0;i<tmp->nbrows;i++)
-  {
+  E c = triangulaire_det(tmp);
+  for(int i= 0; i < tmp->nbrows; i++) {
     c = c * getElt(tmp,i,i);
   }
   deleteMatrix(tmp);
+
   return c;
 }
 
+Matrix invert(Matrix m)
+{
+  if (m->nbrows != m->nbcols)
+  {
+    printf("Matrice non carré colonnes != lignes \n");
+    return NULL;
+  }
+  if (determinant(m) == 0)
+  {
+    printf("Matrice non inversible determinant = 0 \n");
+    return NULL;
+  }
+  Matrix m_inv; 
+  Matrix co_m = comatrice(m);
+  Matrix co_t = transpose(co_m); 
+  m_inv = mult_scal(co_t,(1/determinant(m)));
+ 
+  deleteMatrix(co_m);
+  deleteMatrix(co_t); 
+  return m_inv;
+}
+
+Matrix solve(Matrix A,Matrix B)
+{
+  Matrix X = newMatrix(A->nbrows,1);
+  Matrix new_A = copie_matrix(A);
+  Matrix new_B = copie_matrix(B);
+  triangulaire(new_A,new_B);
+  remontee(new_A,new_B,X);
+  deleteMatrix(new_A);
+  deleteMatrix(new_B);  
+  return X;
+}
+
+int rank(Matrix A)
+{
+  int i,j;
+  int rank = 0;
+  Matrix tmp = copie_matrix(A);
+  triangulaire_det(tmp);
+  for(i=0;i < tmp->nbrows;i++)
+  {
+    for(j=0;j < tmp->nbcols;j++)
+    {
+      if (getElt(tmp,i,j) != 0)
+      { 
+	rank++;
+	break;
+      }
+    }
+  }
+  deleteMatrix(tmp);
+
+  return rank;
+}
 
 Matrix extraction(Matrix m,int i ,int j )
 {
@@ -293,28 +348,6 @@ Matrix comatrice(Matrix m)
   return co_m;
 }
 
-Matrix invert(Matrix m)
-{
-  if (m->nbrows != m->nbcols)
-  {
-    printf("Matrice non carré colonnes != lignes \n");
-    return NULL;
-  }
-  if (determinant(m) == 0)
-  {
-    printf("Matrice non inversible determinant = 0 \n");
-    return NULL;
-  }
-  Matrix m_inv; 
-  Matrix co_m = comatrice(m);
-  Matrix co_t = transpose(co_m); 
-  m_inv = mult_scal(co_t,(1/determinant(m)));
- 
-  deleteMatrix(co_m);
-  deleteMatrix(co_t); 
-  return m_inv;
-}
-	
 void remontee(Matrix A,Matrix B,Matrix X)
 {
   int i,j;
@@ -358,39 +391,7 @@ void triangulaire(Matrix A,Matrix B)
 }
 
 
-Matrix solve(Matrix A,Matrix B)
-{
-  Matrix X = newMatrix(A->nbrows,1);
-  Matrix new_A = copie_matrix(A);
-  Matrix new_B = copie_matrix(B);
-  triangulaire(new_A,new_B);
-  remontee(new_A,new_B,X);
-  deleteMatrix(new_A);
-  deleteMatrix(new_B);  
-  return X;
-}
 
-int rank(Matrix A)
-{
-  int i,j;
-  int rank = 0;
-  Matrix tmp = copie_matrix(A);
-  triangulaire_det(tmp);
-  for(i=0;i < tmp->nbrows;i++)
-  {
-    for(j=0;j < tmp->nbcols;j++)
-    {
-      if (getElt(tmp,i,j) != 0)
-      { 
-	rank++;
-	break;
-      }
-    }
-  }
-  deleteMatrix(tmp);
-
-  return rank;
-}
 
 int plus_grande_compo(Matrix A)
 {
