@@ -57,4 +57,6 @@ E valeur_propre(Matrix A,E precision);
 
 void speedtest(char * commande, int taille_min, int taille_max, int pas, int nb_sec);
 
+Matrix least_estimate(Matrix A,char * nom_fichier);
+
 #endif
