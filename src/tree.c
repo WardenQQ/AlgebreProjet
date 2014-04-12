@@ -15,14 +15,14 @@ Tree newTree()
   t->child = NULL;
   t->count = 0;
   t->size = 0;
-  t->value.type = TOK_NONE;
+  t->token.type = TOK_NONE;
 
   return t;
 }
 
 void setValue(Tree t, Token value)
 {
-  t->value = value;
+  t->token = value;
 }
 
 void setNbChild(Tree t, size_t nb)

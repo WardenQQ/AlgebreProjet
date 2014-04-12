@@ -16,9 +16,17 @@ static void param(Token *lookahead, Tree parent);
 static void optparam(Token *lookahead, Tree parent);
 static void list(Token *lookahead, Tree parent);
 
+bool valid_tree = true;
+
 Tree parser(Token *lookahead)
 {
-  return statement(lookahead);
+  valid_tree = true;
+  Tree root = statement(lookahead);
+  if (valid_tree) {
+    return root;
+  } else {
+    return NULL;
+  }
 }
 
 static void match(enum token_type first, Token *lookahead)
@@ -27,6 +35,7 @@ static void match(enum token_type first, Token *lookahead)
     *lookahead = gettoken();
   } else {
     fprintf(stderr, "Syntax error\n");
+    valid_tree = false;
   }
 }
 
@@ -35,8 +44,10 @@ static Tree statement(Token *lookahead)
   Tree node;
   switch (lookahead->type) {
     case TOK_EOF:
+      valid_tree = false;
       return NULL;
     case TOK_SEMI_COLON:
+      valid_tree = false;
       return NULL;
     case TOK_ID:// Fall through!!
     case TOK_NUMBER:
@@ -45,6 +56,7 @@ static Tree statement(Token *lookahead)
       //match(TOK_SEMI_COLON, lookahead);
       return node;
     default:
+      valid_tree = false;
       return NULL;
   }
 }
@@ -68,7 +80,8 @@ static Tree expression(Token *lookahead)
       list(lookahead, node);
       return node;
     default:
-        return NULL;
+      valid_tree = false;
+      return NULL;
   }
 }
 
@@ -78,7 +91,7 @@ static Tree id_followup(Token *lookahead, Tree node)
   Tree rvalue = NULL;
   switch(lookahead->type) {
     case TOK_LEFT_PARENTHESE:
-      node->value.type = TOK_FUNCTION;
+      node->token.type = TOK_FUNCTION;
       match(TOK_LEFT_PARENTHESE, lookahead);
       param_list(lookahead, node);
       match(TOK_RIGHT_PARENTHESE, lookahead);
@@ -108,6 +121,7 @@ static void param_list(Token *lookahead, Tree parent)
       optparam(lookahead, parent);
       break;
     default:
+      // Empty param_list
       break;
   }
 }
@@ -141,6 +155,7 @@ static void list(Token *lookahead, Tree parent)
       match(TOK_RIGHT_BRACKET, lookahead);
       break;
     default:
+      valid_tree = false;
       break;
   }
 }

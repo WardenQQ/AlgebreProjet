@@ -45,7 +45,7 @@ static Data extract_data(Tree node, SymbolTable symbol_table)
 {
   Data data = {.common = {.type = DATA_NULL}};
 
-  switch (node->value.type) {
+  switch (node->token.type) {
     case TOK_COLON:
       data = assign(node, symbol_table);
       break;
@@ -53,11 +53,11 @@ static Data extract_data(Tree node, SymbolTable symbol_table)
       data = call_function(node, symbol_table);
       break;
     case TOK_ID:
-      data = find_entry_data(symbol_table, node->value.id.name);
+      data = find_entry_data(symbol_table, node->token.id.name);
       break;
     case TOK_NUMBER:
       data.number.type = DATA_NUMBER;
-      data.number.value = node->value.number.value;
+      data.number.value = node->token.number.value;
       break;
     default:
       break;
@@ -77,7 +77,7 @@ static Data assign(Tree node, SymbolTable symbol_table)
   if (data.common.type == DATA_MATRIX) {
     data.matrix.is_temp = false;
   }
-  add_entry(symbol_table, node->child[0]->value.id.name, data);
+  add_entry(symbol_table, node->child[0]->token.id.name, data);
   
 
   return data;
@@ -86,32 +86,32 @@ static Data assign(Tree node, SymbolTable symbol_table)
 static Data call_function(Tree node, SymbolTable symbol_table)
 {
   Data data;
-  if (strncmp(node->value.id.name, "matrix", STRING_MAX) == 0) {
+  if (strncmp(node->token.id.name, "matrix", STRING_MAX) == 0) {
     data = call_matrix(node, symbol_table);
-  } else if (strncmp(node->value.id.name, "addition", STRING_MAX) == 0) {
+  } else if (strncmp(node->token.id.name, "addition", STRING_MAX) == 0) {
     data = call_addition(node, symbol_table);
-  } else if (strncmp(node->value.id.name, "sub", STRING_MAX) == 0) {
+  } else if (strncmp(node->token.id.name, "sub", STRING_MAX) == 0) {
     data = call_sub(node, symbol_table);
-  } else if (strncmp(node->value.id.name, "mult", STRING_MAX) == 0) {
+  } else if (strncmp(node->token.id.name, "mult", STRING_MAX) == 0) {
     data = call_mult(node, symbol_table);
-  } else if (strncmp(node->value.id.name, "mult_scal", STRING_MAX) == 0) {
+  } else if (strncmp(node->token.id.name, "mult_scal", STRING_MAX) == 0) {
     data = call_mult_scal(node, symbol_table);
-  } else if (strncmp(node->value.id.name, "expo", STRING_MAX) == 0) {
+  } else if (strncmp(node->token.id.name, "expo", STRING_MAX) == 0) {
     data = call_expo(node, symbol_table);
-  } else if (strncmp(node->value.id.name, "transpose", STRING_MAX) == 0) {
+  } else if (strncmp(node->token.id.name, "transpose", STRING_MAX) == 0) {
     data = call_transpose(node, symbol_table);
-  } else if (strncmp(node->value.id.name, "determinant", STRING_MAX) == 0) {
+  } else if (strncmp(node->token.id.name, "determinant", STRING_MAX) == 0) {
     data = call_determinant(node, symbol_table);
-  } else if (strncmp(node->value.id.name, "invert", STRING_MAX) == 0) {
+  } else if (strncmp(node->token.id.name, "invert", STRING_MAX) == 0) {
     data = call_invert(node, symbol_table);
-  } else if (strncmp(node->value.id.name, "solve", STRING_MAX) == 0) {
+  } else if (strncmp(node->token.id.name, "solve", STRING_MAX) == 0) {
     data = call_solve(node, symbol_table);
-  } else if (strncmp(node->value.id.name, "rank", STRING_MAX) == 0) {
+  } else if (strncmp(node->token.id.name, "rank", STRING_MAX) == 0) {
     data = call_rank(node, symbol_table);
-  } else if (strncmp(node->value.id.name, "quit", STRING_MAX) == 0) {
+  } else if (strncmp(node->token.id.name, "quit", STRING_MAX) == 0) {
     exit(0);
   } else {
-    fprintf(stderr, "%s is not a function\n", node->value.id.name);
+    fprintf(stderr, "%s is not a function\n", node->token.id.name);
   }
 
   return data;
@@ -121,7 +121,7 @@ static Data call_matrix(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count < 1) {
-    fprintf(stderr, "Function %s expects at least 1 argument.\n", node->value.id.name);
+    fprintf(stderr, "Function %s expects at least 1 argument.\n", node->token.id.name);
     return result;
   }
 
@@ -132,15 +132,15 @@ static Data call_matrix(Tree node, SymbolTable symbol_table)
 
   for (int i = 0; i < nb_rows; ++i) {
     Tree list = node->child[i];
-    if (list->value.type != TOK_VECTOR) {
+    if (list->token.type != TOK_VECTOR) {
       fprintf(stderr, "Expected an argument of type list in function %s\n",
-          node->value.id.name);
+          node->token.id.name);
       return result;
     }
 
     if (list->count != nb_columns) {
       fprintf(stderr, "List %d is of same size as list 0 in function %s\n",
-          i, node->value.id.name);
+          i, node->token.id.name);
       return result;
     }
 
@@ -165,7 +165,7 @@ static Data call_addition(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
+    fprintf(stderr, "Function %s expects 2 arguments\n", node->token.id.name);
     return result;
   }
 
@@ -174,7 +174,7 @@ static Data call_addition(Tree node, SymbolTable symbol_table)
     m[i] = extract_data(node->child[i], symbol_table);
     if (m[i].common.type != DATA_MATRIX) {
       fprintf(stderr, "In function %s, argument %d is not of type matrix.\n",
-          node->value.id.name, i);
+          node->token.id.name, i);
       return result;
     }
   }
@@ -182,7 +182,7 @@ static Data call_addition(Tree node, SymbolTable symbol_table)
   if (m[0].matrix.value->nbrows != m[1].matrix.value->nbrows
       && m[0].matrix.value->nbcols != m[1].matrix.value->nbcols) {
     fprintf(stderr, "In function %s, the matrices are not the same size.\n",
-        node->value.id.name);
+        node->token.id.name);
   }
 
   result.matrix.type = DATA_MATRIX;
@@ -203,7 +203,7 @@ static Data call_sub(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
+    fprintf(stderr, "Function %s expects 2 arguments\n", node->token.id.name);
     return result;
   }
 
@@ -212,7 +212,7 @@ static Data call_sub(Tree node, SymbolTable symbol_table)
     m[i] = extract_data(node->child[i], symbol_table);
     if (m[i].common.type != DATA_MATRIX) {
       fprintf(stderr, "In function %s, arguments are not all of type matrix.\n",
-          node->value.id.name);
+          node->token.id.name);
       return result;
     }
   }
@@ -220,7 +220,7 @@ static Data call_sub(Tree node, SymbolTable symbol_table)
   if (m[0].matrix.value->nbrows != m[1].matrix.value->nbrows
       && m[0].matrix.value->nbcols != m[1].matrix.value->nbcols) {
     fprintf(stderr, "In function %s, the matrices are not the same size.\n",
-        node->value.id.name);
+        node->token.id.name);
   }
 
   result.matrix.type = DATA_MATRIX;
@@ -241,7 +241,7 @@ static Data call_mult(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
+    fprintf(stderr, "Function %s expects 2 arguments\n", node->token.id.name);
     return result;
   }
 
@@ -250,14 +250,14 @@ static Data call_mult(Tree node, SymbolTable symbol_table)
     m[i] = extract_data(node->child[i], symbol_table);
     if (m[i].common.type != DATA_MATRIX) {
       fprintf(stderr, "In function %s, arguments are not all of type matrix.\n",
-          node->value.id.name);
+          node->token.id.name);
       return result;
     }
   }
 
   if (m[0].matrix.value->nbcols != m[1].matrix.value->nbrows) {
     fprintf(stderr, "In function %s, the matrices cannot be multiplied together.\n",
-        node->value.id.name);
+        node->token.id.name);
   }
 
   result.matrix.type = DATA_MATRIX;
@@ -278,7 +278,7 @@ static Data call_mult_scal(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
+    fprintf(stderr, "Function %s expects 2 arguments\n", node->token.id.name);
     return result;
   }
 
@@ -288,12 +288,12 @@ static Data call_mult_scal(Tree node, SymbolTable symbol_table)
   }
   if (m[0].common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
-        node->value.id.name);
+        node->token.id.name);
     return result;
   }
   if (m[1].common.type != DATA_NUMBER) {
     fprintf(stderr, "In function %s, argument 1 is not of type number.\n",
-        node->value.id.name);
+        node->token.id.name);
     return result;
   }
 
@@ -312,7 +312,7 @@ static Data call_expo(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
+    fprintf(stderr, "Function %s expects 2 arguments\n", node->token.id.name);
     return result;
   }
 
@@ -322,12 +322,12 @@ static Data call_expo(Tree node, SymbolTable symbol_table)
   }
   if (m[0].common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
-        node->value.id.name);
+        node->token.id.name);
     return result;
   }
   if (m[1].common.type != DATA_NUMBER) {
     fprintf(stderr, "In function %s, argument 1 is not of type number.\n",
-        node->value.id.name);
+        node->token.id.name);
     return result;
   }
 
@@ -346,7 +346,7 @@ static Data call_transpose(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
-    fprintf(stderr, "Function %s expects 1 arguments\n", node->value.id.name);
+    fprintf(stderr, "Function %s expects 1 arguments\n", node->token.id.name);
     return result;
   }
 
@@ -354,7 +354,7 @@ static Data call_transpose(Tree node, SymbolTable symbol_table)
   m = extract_data(node->child[0], symbol_table);
   if (m.common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
-        node->value.id.name);
+        node->token.id.name);
     return result;
   }
 
@@ -373,7 +373,7 @@ static Data call_determinant(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
-    fprintf(stderr, "Function %s expects 1 arguments\n", node->value.id.name);
+    fprintf(stderr, "Function %s expects 1 arguments\n", node->token.id.name);
     return result;
   }
 
@@ -381,13 +381,13 @@ static Data call_determinant(Tree node, SymbolTable symbol_table)
   m = extract_data(node->child[0], symbol_table);
   if (m.common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
-        node->value.id.name);
+        node->token.id.name);
     return result;
   }
 
   if (m.matrix.value->nbrows != m.matrix.value->nbcols) {
     fprintf(stderr, "In function %s, argument 0 is not a square matrix.\n",
-        node->value.id.name);
+        node->token.id.name);
     return result;
   }
 
@@ -406,7 +406,7 @@ static Data call_invert(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
-    fprintf(stderr, "Function %s expects 1 arguments\n", node->value.id.name);
+    fprintf(stderr, "Function %s expects 1 arguments\n", node->token.id.name);
     return result;
   }
 
@@ -414,13 +414,13 @@ static Data call_invert(Tree node, SymbolTable symbol_table)
   m = extract_data(node->child[0], symbol_table);
   if (m.common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
-        node->value.id.name);
+        node->token.id.name);
     return result;
   }
 
   if (m.matrix.value->nbrows != m.matrix.value->nbcols) {
     fprintf(stderr, "In function %s, argument 0 is not a square matrix.\n",
-        node->value.id.name);
+        node->token.id.name);
     return result;
   }
 
@@ -439,7 +439,7 @@ static Data call_solve(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "Function %s expects 2 arguments\n", node->value.id.name);
+    fprintf(stderr, "Function %s expects 2 arguments\n", node->token.id.name);
     return result;
   }
 
@@ -448,7 +448,7 @@ static Data call_solve(Tree node, SymbolTable symbol_table)
     m[i] = extract_data(node->child[i], symbol_table);
     if (m[i].common.type != DATA_MATRIX) {
       fprintf(stderr, "In function %s, arguments are not all of type matrix.\n",
-          node->value.id.name);
+          node->token.id.name);
       return result;
     }
   }
@@ -471,7 +471,7 @@ static Data call_rank(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
-    fprintf(stderr, "Function %s expects 1 arguments\n", node->value.id.name);
+    fprintf(stderr, "Function %s expects 1 arguments\n", node->token.id.name);
     return result;
   }
 
@@ -479,7 +479,7 @@ static Data call_rank(Tree node, SymbolTable symbol_table)
   m = extract_data(node->child[0], symbol_table);
   if (m.common.type != DATA_MATRIX) {
     fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
-        node->value.id.name);
+        node->token.id.name);
     return result;
   }
 

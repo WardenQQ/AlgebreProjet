@@ -19,21 +19,21 @@ int main(int argc, char *argv[])
     open(argv[1], O_RDONLY);
   }
 
-  bool display_prompt = isatty(0);
   SymbolTable symbol_table = newSymbolTable();
 
   Token lookahead;
   do {
-    if (display_prompt) {
-      printf("> ");
-      fflush(stdout);
-    } else {
+    printf("> ");
+    fflush(stdout);
+    lookahead = gettoken();
+    if (!isatty(0)) {
       printf("\n");
     }
 
-    lookahead = gettoken();
     Tree root = parser(&lookahead);
-    interpreter(root, symbol_table);
+    if (root != NULL) {
+      interpreter(root, symbol_table);
+    }
   } while (lookahead.type != TOK_EOF);
 
   return 0;

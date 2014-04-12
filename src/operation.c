@@ -497,15 +497,16 @@ static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_s
 
   fclose(file);
 }
+/*
 static void speedtest_sub(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_mult(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_mult_scal(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_expo(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_transpose(int taille_min, int taille_max, int pas, int nb_sec);
-static void speedtest_determinant(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_invert(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_solve(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_rank(int taille_min, int taille_max, int pas, int nb_sec);
+*/
 
 void speedtest(char *commande, int taille_min, int taille_max, int pas, int nb_sec)
 {

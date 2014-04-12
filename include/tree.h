@@ -5,12 +5,11 @@
 
 #include "tokens.h"
 
-//TODO: Changer value en token.
 typedef struct tree {
   size_t count;
   size_t size;
   struct tree **child;
-  Token value;
+  Token token;
 } *Tree;
 
 Tree newTree();

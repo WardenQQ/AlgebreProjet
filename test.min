@@ -1,13 +1,5 @@
-a : 1.0;
-b : 2.0;
-c : 3.0;
-a;
-b;
-c;
-
-mult_scal(matrix([a, b, c]), c);
-m1 : matrix([a,b,c]);
-m1;
-invert(matrix([1,0,0],[0,1,0],[3,0,1]));
-invert(matrix([1,0,0],[3,1,0],[0,0,1]));
-quit();
+m1 : matrix([-2,0,0],[0,-2,0],[0,0,-2]);
+m2 : mult_scal(m1,-.5e0);
+m3 : mult(m2, count_down:matrix([9,8,7],[6,5,4],[3,2,1]));
+m4 : addition(m1,matrix([0,0,0],[0,0,0],[0,0,0]));
+m5 : invert(m2);
