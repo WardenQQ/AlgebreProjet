@@ -131,6 +131,9 @@ static Data call_matrix(Tree node, SymbolTable symbol_table)
   int nb_columns = node->child[0]->count;
 
   Matrix m = newMatrix(nb_rows, nb_columns);
+  if (m == NULL) {
+    return result;
+  }
 
   for (int i = 0; i < nb_rows; ++i) {
     Tree list = node->child[i];
@@ -159,8 +162,8 @@ static Data call_matrix(Tree node, SymbolTable symbol_table)
   }
 
   result.matrix.type = DATA_MATRIX;
-  result.matrix.value = m;
   result.matrix.is_temp = true;
+  result.matrix.value = m;
 
   return result;
 }
@@ -184,14 +187,11 @@ static Data call_addition(Tree node, SymbolTable symbol_table)
     }
   }
 
-  if (m[0].matrix.value->nbrows != m[1].matrix.value->nbrows
-      && m[0].matrix.value->nbcols != m[1].matrix.value->nbcols) {
-    fprintf(stderr, "Dans la fonction %s.\n",
-        node->token.id.name);
-  }
-
-  result.matrix.type = DATA_MATRIX;
   result.matrix.value = addition(m[0].matrix.value, m[1].matrix.value);
+  if (result.matrix.value == NULL) {
+    return result;
+  }
+  result.matrix.type = DATA_MATRIX;
   result.matrix.is_temp = true;
 
   if (m[0].matrix.is_temp) {
@@ -208,7 +208,7 @@ static Data call_sub(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "Function %s expects 2 arguments\n", node->token.id.name);
+    fprintf(stderr, "La fonction %s s'attend à 2 arguments.\n", node->token.id.name);
     return result;
   }
 
@@ -216,20 +216,18 @@ static Data call_sub(Tree node, SymbolTable symbol_table)
   for (int i = 0; i < 2; ++i) {
     m[i] = extract_data(node->child[i], symbol_table);
     if (m[i].common.type != DATA_MATRIX) {
-      fprintf(stderr, "In function %s, arguments are not all of type matrix.\n",
-          node->token.id.name);
+      fprintf(stderr,
+          "Dans la fonction %s l'argument %d n'est pas de type matrice.\n",
+          node->token.id.name, i + 1);
       return result;
     }
   }
 
-  if (m[0].matrix.value->nbrows != m[1].matrix.value->nbrows
-      && m[0].matrix.value->nbcols != m[1].matrix.value->nbcols) {
-    fprintf(stderr, "In function %s, the matrices are not the same size.\n",
-        node->token.id.name);
-  }
-
-  result.matrix.type = DATA_MATRIX;
   result.matrix.value = sub(m[0].matrix.value, m[1].matrix.value);
+  if (result.matrix.value == NULL) {
+    return result;
+  }
+  result.matrix.type = DATA_MATRIX;
   result.matrix.is_temp = true;
 
   if (m[0].matrix.is_temp) {
@@ -246,7 +244,7 @@ static Data call_mult(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "Function %s expects 2 arguments\n", node->token.id.name);
+    fprintf(stderr, "La fonction %s s'attend à 2 arguments.\n", node->token.id.name);
     return result;
   }
 
@@ -254,20 +252,19 @@ static Data call_mult(Tree node, SymbolTable symbol_table)
   for (int i = 0; i < 2; ++i) {
     m[i] = extract_data(node->child[i], symbol_table);
     if (m[i].common.type != DATA_MATRIX) {
-      fprintf(stderr, "In function %s, arguments are not all of type matrix.\n",
-          node->token.id.name);
+      fprintf(stderr,
+          "Dans la fonction %s l'argument %d n'est pas de type matrice.\n",
+          node->token.id.name, i + 1);
       return result;
     }
   }
 
-  if (m[0].matrix.value->nbcols != m[1].matrix.value->nbrows) {
-    fprintf(stderr, "In function %s, the matrices cannot be multiplied together.\n",
-        node->token.id.name);
-  }
-
-  result.matrix.type = DATA_MATRIX;
   result.matrix.value = mult(m[0].matrix.value, m[1].matrix.value);
+  if (result.matrix.value == NULL) {
+    return result;
+  }
   result.matrix.is_temp = true;
+  result.matrix.type = DATA_MATRIX;
 
   if (m[0].matrix.is_temp) {
     deleteMatrix(m[0].matrix.value);

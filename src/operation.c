@@ -10,39 +10,62 @@
 Matrix copie_matrix(Matrix m)
 {
   int i, j;
-  Matrix copie = newMatrix(m->nbrows, m->nbcols);
+  Matrix m_copie = newMatrix(m->nbrows, m->nbcols);
 
-  for(i = 0; i < m->nbrows; i++) {
-    for(j = 0; j < m->nbcols; j++) {
-      setElt(copie, i, j, getElt(m, i, j));
+  for (i = 0; i < m->nbrows; i++) {
+    for (j = 0; j < m->nbcols; j++) {
+      setElt(m_copie, i, j, getElt(m, i, j));
     }
   }
 
-  return copie;
+  return m_copie;
 }
 
 Matrix addition(Matrix m1,Matrix m2)
 {
-  if ((m1->nbcols != m2->nbcols) || (m1->nbrows != m2->nbrows))	
-  {
-    fprintf(stderr,"Addition impossible\n");
+  if ((m1->nbcols != m2->nbcols) || (m1->nbrows != m2->nbrows))	{
+    fprintf(stderr, "La taille des deux matrices sont différentes,"
+        " impossible de faire l'addition.\n");
     return NULL;
   }
-  Matrix new_a = newMatrix(m1->nbrows,m1->nbcols);
-  int i,j;
-	
-  for(i = 0;i < m1->nbrows;i++)
-    for(j = 0;j < m1->nbcols;j++)
-      setElt(new_a,i,j,getElt(m1,i,j)+getElt(m2,i,j));
 
-  return new_a;
+  Matrix m_add = newMatrix(m1->nbrows, m1->nbcols);
+  int i, j;
+	
+  for (i = 0; i < m1->nbrows; i++) {
+    for (j = 0; j < m1->nbcols; j++) {
+      setElt(m_add, i, j, getElt(m1, i, j) + getElt(m2, i, j));
+    }
+  }
+
+  return m_add;
+}
+
+Matrix sub(Matrix m1, Matrix m2)
+{
+  if ((m1->nbcols != m2->nbcols) || (m1->nbrows != m2->nbrows))	{
+    fprintf(stderr, "La taille des deux matrices sont différentes,"
+        " impossible de faire la substraction.\n");
+    return NULL;
+  }
+
+  Matrix m_sub = newMatrix(m1->nbrows, m1->nbcols);
+  int i, j;
+  for(i = 0; i < m1->nbrows; i++) {
+    for(j = 0; j < m1->nbcols; j++) {
+      setElt(m_sub, i, j, getElt(m1, i, j) - getElt(m2, i, j));
+    }
+  }
+
+  return m_sub;
 }
 
 Matrix mult(Matrix m1,Matrix m2)
 {
-  if (m1->nbcols != m2->nbrows)
-  {
-    fprintf(stderr,"Multiplication impossible\n");
+  if (m1->nbcols != m2->nbrows) {
+    fprintf(stderr, "Le nombre de colonnes de la matrice 1 est différent"
+        " du nombre de lignes de la matrice 2,"
+        " impossible de faire la multiplication.\n");
     return NULL;
   }
 	
@@ -63,24 +86,6 @@ Matrix mult(Matrix m1,Matrix m2)
   }
 
   return new_a;
-}
-
-Matrix sub(Matrix m1,Matrix m2)
-{
-  if ((m1->nbrows != m2->nbrows) || (m1->nbcols != m2->nbcols))
-  {
-    fprintf(stderr,"Mauvaise dimension\n");
-    return NULL;
-  }
-  Matrix m_sub = newMatrix(m1->nbrows,m1->nbcols);
-  int i,j;
-  for(i = 0;i<m1->nbrows;i++)
-    {
-      for(j = 0;j<m1->nbcols;j++)
-        setElt(m_sub,i,j,getElt(m1,i,j)-getElt(m2,i,j));
-    }
-
-  return m_sub;
 }
 
 Matrix transpose(Matrix m)

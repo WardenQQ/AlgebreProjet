@@ -9,7 +9,7 @@ Matrix newMatrix(int nb_rows, int nb_columns)
 {
   Matrix m;
   if (nb_rows < 1 || nb_columns < 1) {
-    fprintf(stderr, "La matrice doit etre de taille minimum 1x1");
+    fprintf(stderr, "La matrice doit etre de taille minimum 1x1.\n");
     return NULL;
   }
 
