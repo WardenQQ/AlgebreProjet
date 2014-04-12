@@ -49,7 +49,7 @@ Matrix mult(Matrix m1,Matrix m2)
   E mult = 0;
   for(i = 0;i < m1->nbrows;i++)
   {
-    for(j = 0;j < m1->nbcols;j++)
+    for(j = 0;j < m2->nbcols;j++)
     {
       for(k = 0;k < m1->nbcols ;k++)
       {
@@ -365,8 +365,6 @@ Matrix solve(Matrix A,Matrix B)
   Matrix new_A = copie_matrix(A);
   Matrix new_B = copie_matrix(B);
   triangulaire(new_A,new_B);
-  displayMatrix(new_A);
-  displayMatrix(new_B);
   remontee(new_A,new_B,X);
   deleteMatrix(new_A);
   deleteMatrix(new_B);  
@@ -390,7 +388,6 @@ int rank(Matrix A)
       }
     }
   }
-  displayMatrix(tmp);
   deleteMatrix(tmp);
 
   return rank;
@@ -471,6 +468,58 @@ E valeur_propre(Matrix A,E precision)
   return vp;
 }
 
+Matrix least_estimate(Matrix A,char * nom_fichier)
+{
+  if (nom_fichier == NULL)
+  {
+      return NULL;
+  }
+  FILE * file = fopen(nom_fichier,"w");
+  int i;
+
+  Matrix new_A = newMatrix(A->nbrows,2);
+  Matrix new_B = newMatrix(A->nbrows,1);
+  // init matrices
+  for(i = 0;i<A->nbrows;i++)
+  {
+    setElt(new_A,i,0,getElt(A,i,0));
+    setElt(new_A,i,1,1);
+    setElt(new_B,i,0,getElt(A,i,1));
+  } 
+  Matrix new_A_T = transpose(new_A);
+  Matrix A_T_A = mult(new_A_T,new_A);
+  Matrix A_T_B = mult(new_A_T,new_B);
+  Matrix X = solve(A_T_A,A_T_B);
+  Matrix residu = newMatrix(A->nbrows,1);
+  E x,y;
+  for(i=0;i<A->nbrows;i++)
+  {
+    y = getElt(new_B,i,0);
+    x = (getElt(new_A,i,0) * getElt(X,0,0)) + getElt(X,1,0);
+    setElt(residu,i,0,(y-x));
+  }
+
+  
+  fprintf(file, "set xlabel \"Axe des x\"\n");
+  fprintf(file, "set ylabel \"Axe des y\"\n");
+  fprintf(file, "f(x)=x*%f+%f\n",getElt(X,0,0),getElt(X,1,0));
+  //fprintf(file, "set xrange[-20:20]\n");
+  //fprintf(file, "set yrange[-20:20]\n");
+  fprintf(file, "set terminal png size 640,480 enhanced font \"Helvetica,20\"\n"); 
+  fprintf(file, "set output \"graph.png\"\n");
+  fprintf(file, "plot f(x)\n");
+
+  deleteMatrix(new_A);
+  deleteMatrix(new_A_T);
+  deleteMatrix(new_B);
+  deleteMatrix(A_T_A);
+  deleteMatrix(A_T_B);
+  fclose(file);
+  return X;
+}
+
+
+
 static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_sec)
 {
   FILE * file = fopen("./plot.dat", "w");
@@ -497,6 +546,7 @@ static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_s
 
   fclose(file);
 }
+
 /*
 static void speedtest_sub(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_mult(int taille_min, int taille_max, int pas, int nb_sec);
