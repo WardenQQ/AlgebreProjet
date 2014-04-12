@@ -14,7 +14,7 @@ Token gettoken()
   while (last_char != ',' && last_char != ':' && last_char != ';'
       && last_char != '(' && last_char != ')' && last_char != '['
       && last_char != ']' && last_char != '.' && last_char != EOF
-      && last_char == '_' && !isalnum(last_char)
+      && last_char != '_' && last_char != '-' && !isalnum(last_char)
       ) {
     last_char = getchar();
   }
@@ -57,19 +57,27 @@ Token gettoken()
       break;
   }
 
-  if (isdigit(last_char) || last_char == '.') {
-    int hasdot = false;
+  if (isdigit(last_char) || last_char == '.' || last_char == '-') {
+    bool hasdot = false;
+    bool hasexpo = false;
     int i = 0;
     char number[STRING_MAX];
+
     do {
       if (last_char == '.') {
         hasdot = true;
       }
+      if (last_char == 'e' || last_char == 'E') {
+        hasdot = true;
+        hasexpo = true;
+      }
       number[i] = last_char;
       ++i;
       last_char = getchar();
-    } while((isdigit(last_char) || (last_char == '.' && !hasdot)) 
-            && i < STRING_MAX - 1);
+    } while ((isdigit(last_char) || (last_char == '.' && !hasdot) 
+          || (last_char == 'e' && !hasexpo)  || (last_char == 'E' && !hasexpo))
+          && i < STRING_MAX - 1);
+
     number[i] = '\0';
     tok.type = TOK_NUMBER;
     tok.number.value = strtod(number, NULL);
