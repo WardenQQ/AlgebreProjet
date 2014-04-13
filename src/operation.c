@@ -338,7 +338,7 @@ static E plus_grande_compo_absolue(Matrix A)
   return max;
 }
 
-E valeur_propre(Matrix A,E precision)
+eigenvalue_t eigenvalues(Matrix A,E precision)
 {
   Matrix m_propre = copie_matrix(A);
   Matrix v_propre = newMatrix(m_propre->nbrows,1);
@@ -373,25 +373,17 @@ E valeur_propre(Matrix A,E precision)
     v_propre = mult_scal(v_propre,1/vp);
     deleteMatrix(a_free);
   } 
-  deleteMatrix(v_propre);
+  eigenvalue_t ev = {.valeur_propre = vp, .vecteur_propre = v_propre};
   deleteMatrix(m_propre);
-  return vp;
+  return ev;
 }
 
-Matrix least_estimate(Matrix A,char * nom_fichier)
+least_squares_t least_estimate(Matrix A, char * nom_fichier)
 {
-  if (nom_fichier == NULL)
-  {
-      return NULL;
-  }
-  FILE * file = fopen(nom_fichier,"w");
-  int i;
-
   Matrix new_A = newMatrix(A->nbrows,2);
   Matrix new_B = newMatrix(A->nbrows,1);
   // init matrices
-  for(i = 0;i<A->nbrows;i++)
-  {
+  for(int i = 0; i < A->nbrows; i++) {
     setElt(new_A,i,0,getElt(A,i,0));
     setElt(new_A,i,1,1);
     setElt(new_B,i,0,getElt(A,i,1));
@@ -402,13 +394,14 @@ Matrix least_estimate(Matrix A,char * nom_fichier)
   Matrix X = solve(A_T_A,A_T_B);
   Matrix residu = newMatrix(A->nbrows,1);
   E x,y;
-  for(i=0;i<A->nbrows;i++)
-  {
-    y = getElt(new_B,i,0);
-    x = (getElt(new_A,i,0) * getElt(X,0,0)) + getElt(X,1,0);
-    setElt(residu,i,0,(y-x));
+  for(int i=0;i<A->nbrows;i++) {
+    y = getElt(new_B, i, 0);
+    x = (getElt(new_A, i, 0) * getElt(X, 0, 0)) + getElt(X, 1, 0);
+    setElt(residu, i, 0, (y - x));
   }
 
+  if (nom_fichier != NULL) {
+  FILE * file = fopen(nom_fichier,"w");
   
   fprintf(file, "set xlabel \"Axe des x\"\n");
   fprintf(file, "set ylabel \"Axe des y\"\n");
@@ -417,11 +410,17 @@ Matrix least_estimate(Matrix A,char * nom_fichier)
   fprintf(file, "set output \"graph.png\"\n");
   fprintf(file, "plot f(x)\n");
 
+
+  fclose(file);
+  }
+  
+  least_squares_t ls = {.residu = residu, .coef_droite = X};
+
   deleteMatrix(new_A);
   deleteMatrix(new_A_T);
   deleteMatrix(new_B);
   deleteMatrix(A_T_A);
   deleteMatrix(A_T_B);
-  fclose(file);
-  return X;
+  
+  return ls;
 }

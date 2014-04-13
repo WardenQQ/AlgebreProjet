@@ -1,8 +1,10 @@
 #include <float.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include "speedtest.h"
 #include "operation.h"
@@ -73,9 +75,14 @@ static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_s
   FILE * file = fopen("./plot.dat", "w");
   struct timeval start;
   struct timeval end;
+  
+  unsigned long nb_usec = ~0uL;
+  if (nb_sec > 0) {
+    nb_usec = 1000000 * nb_sec;
+  }
+  unsigned long t = 0;
 
-  unsigned long long t = 0;
-  for (int i = taille_min; i <= taille_max && t < nb_sec * 1000000; i += pas) {
+  for (int i = taille_min; i <= taille_max && t < nb_usec; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
     Matrix B = aleatoire(i, i, DBL_MIN, DBL_MAX);
 
@@ -85,7 +92,7 @@ static void speedtest_addition(int taille_min, int taille_max, int pas, int nb_s
 
     t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 
-    fprintf(file, "%d %llu\n", i, t);
+    fprintf(file, "%d %lu\n", i, t);
 
     deleteMatrix(A);
     deleteMatrix(B);
@@ -102,8 +109,13 @@ static void speedtest_sub(int taille_min, int taille_max, int pas, int nb_sec)
   struct timeval start;
   struct timeval end;
 
-  unsigned long long t = 0;
-  for (int i = taille_min; i <= taille_max && t < nb_sec * 1000000; i += pas) {
+  unsigned long nb_usec = ~0uL;
+  if (nb_sec > 0) {
+    nb_usec = 1000000 * nb_sec;
+  }
+  unsigned long t = 0;
+
+  for (int i = taille_min; i <= taille_max && t < nb_usec; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
     Matrix B = aleatoire(i, i, DBL_MIN, DBL_MAX);
 
@@ -113,7 +125,7 @@ static void speedtest_sub(int taille_min, int taille_max, int pas, int nb_sec)
 
     t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 
-    fprintf(file, "%d %llu\n", i, t);
+    fprintf(file, "%d %lu\n", i, t);
 
     deleteMatrix(A);
     deleteMatrix(B);
@@ -129,8 +141,13 @@ static void speedtest_mult(int taille_min, int taille_max, int pas, int nb_sec)
   struct timeval start;
   struct timeval end;
 
-  unsigned long long t = 0;
-  for (int i = taille_min; i <= taille_max && t < nb_sec * 1000000; i += pas) {
+  unsigned long nb_usec = ~0uL;
+  if (nb_sec > 0) {
+    nb_usec = 1000000 * nb_sec;
+  }
+  unsigned long t = 0;
+
+  for (int i = taille_min; i <= taille_max && t < nb_usec; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
     Matrix B = aleatoire(i, i, DBL_MIN, DBL_MAX);
 
@@ -140,7 +157,7 @@ static void speedtest_mult(int taille_min, int taille_max, int pas, int nb_sec)
 
     t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 
-    fprintf(file, "%d %llu\n", i, t);
+    fprintf(file, "%d %lu\n", i, t);
 
     deleteMatrix(A);
     deleteMatrix(B);
@@ -156,8 +173,13 @@ static void speedtest_mult_scal(int taille_min, int taille_max, int pas, int nb_
   struct timeval start;
   struct timeval end;
 
-  unsigned long long t = 0;
-  for (int i = taille_min; i <= taille_max && t < nb_sec * 1000000; i += pas) {
+  unsigned long nb_usec = ~0uL;
+  if (nb_sec > 0) {
+    nb_usec = 1000000 * nb_sec;
+  }
+  unsigned long t = 0;
+
+  for (int i = taille_min; i <= taille_max && t < nb_usec; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
 
     gettimeofday(&start, NULL);
@@ -166,7 +188,7 @@ static void speedtest_mult_scal(int taille_min, int taille_max, int pas, int nb_
 
     t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 
-    fprintf(file, "%d %llu\n", i, t);
+    fprintf(file, "%d %lu\n", i, t);
 
     deleteMatrix(A);
     deleteMatrix(C);
@@ -181,8 +203,13 @@ static void speedtest_expo(int taille_min, int taille_max, int pas, int nb_sec)
   struct timeval start;
   struct timeval end;
 
-  unsigned long long t = 0;
-  for (int i = taille_min; i <= taille_max && t < nb_sec * 1000000; i += pas) {
+  unsigned long nb_usec = ~0uL;
+  if (nb_sec > 0) {
+    nb_usec = 1000000 * nb_sec;
+  }
+  unsigned long t = 0;
+
+  for (int i = taille_min; i <= taille_max && t < nb_usec; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
 
     gettimeofday(&start, NULL);
@@ -191,7 +218,7 @@ static void speedtest_expo(int taille_min, int taille_max, int pas, int nb_sec)
 
     t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 
-    fprintf(file, "%d %llu\n", i, t);
+    fprintf(file, "%d %lu\n", i, t);
 
     deleteMatrix(A);
     deleteMatrix(C);
@@ -206,8 +233,13 @@ static void speedtest_transpose(int taille_min, int taille_max, int pas, int nb_
   struct timeval start;
   struct timeval end;
 
-  unsigned long long t = 0;
-  for (int i = taille_min; i <= taille_max && t < nb_sec * 1000000; i += pas) {
+  unsigned long nb_usec = ~0uL;
+  if (nb_sec > 0) {
+    nb_usec = 1000000 * nb_sec;
+  }
+  unsigned long t = 0;
+
+  for (int i = taille_min; i <= taille_max && t < nb_usec; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
 
     gettimeofday(&start, NULL);
@@ -216,7 +248,7 @@ static void speedtest_transpose(int taille_min, int taille_max, int pas, int nb_
 
     t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 
-    fprintf(file, "%d %llu\n", i, t);
+    fprintf(file, "%d %lu\n", i, t);
 
     deleteMatrix(A);
     deleteMatrix(C);
@@ -231,8 +263,13 @@ static void speedtest_determinant(int taille_min, int taille_max, int pas, int n
   struct timeval start;
   struct timeval end;
 
-  unsigned long long t = 0;
-  for (int i = taille_min; i <= taille_max && t < nb_sec * 1000000; i += pas) {
+  unsigned long nb_usec = ~0uL;
+  if (nb_sec > 0) {
+    nb_usec = 1000000 * nb_sec;
+  }
+  unsigned long t = 0;
+
+  for (int i = taille_min; i <= taille_max && t < nb_usec; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
 
     gettimeofday(&start, NULL);
@@ -242,7 +279,7 @@ static void speedtest_determinant(int taille_min, int taille_max, int pas, int n
 
     t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 
-    fprintf(file, "%d %llu\n", i, t);
+    fprintf(file, "%d %lu\n", i, t);
 
     deleteMatrix(A);
   }
@@ -256,8 +293,13 @@ static void speedtest_invert(int taille_min, int taille_max, int pas, int nb_sec
   struct timeval start;
   struct timeval end;
 
-  unsigned long long t = 0;
-  for (int i = taille_min; i <= taille_max && t < nb_sec * 1000000; i += pas) {
+  unsigned long nb_usec = ~0uL;
+  if (nb_sec > 0) {
+    nb_usec = 1000000 * nb_sec;
+  }
+  unsigned long t = 0;
+
+  for (int i = taille_min; i <= taille_max && t < nb_usec; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
 
     gettimeofday(&start, NULL);
@@ -266,7 +308,7 @@ static void speedtest_invert(int taille_min, int taille_max, int pas, int nb_sec
 
     t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 
-    fprintf(file, "%d %llu\n", i, t);
+    fprintf(file, "%d %lu\n", i, t);
 
     deleteMatrix(A);
     deleteMatrix(C);
@@ -281,8 +323,13 @@ static void speedtest_solve(int taille_min, int taille_max, int pas, int nb_sec)
   struct timeval start;
   struct timeval end;
 
-  unsigned long long t = 0;
-  for (int i = taille_min; i <= taille_max && t < nb_sec * 1000000; i += pas) {
+  unsigned long nb_usec = ~0uL;
+  if (nb_sec > 0) {
+    nb_usec = 1000000 * nb_sec;
+  }
+  unsigned long t = 0;
+
+  for (int i = taille_min; i <= taille_max && t < nb_usec; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX);
     Matrix B = aleatoire(i, 0, DBL_MIN, DBL_MAX);
 
@@ -292,7 +339,7 @@ static void speedtest_solve(int taille_min, int taille_max, int pas, int nb_sec)
 
     t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 
-    fprintf(file, "%d %llu\n", i, t);
+    fprintf(file, "%d %lu\n", i, t);
 
     deleteMatrix(A);
     deleteMatrix(B);
@@ -308,8 +355,13 @@ static void speedtest_rank(int taille_min, int taille_max, int pas, int nb_sec)
   struct timeval start;
   struct timeval end;
 
-  unsigned long long t = 0;
-  for (int i = taille_min; i <= taille_max && t < nb_sec * 1000000; i += pas) {
+  unsigned long nb_usec = ~0uL;
+  if (nb_sec > 0) {
+    nb_usec = 1000000 * nb_sec;
+  }
+  unsigned long t = 0;
+
+  for (int i = taille_min; i <= taille_max && t < nb_usec; i += pas) {
     Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX); 
 
     gettimeofday(&start, NULL);
@@ -318,7 +370,7 @@ static void speedtest_rank(int taille_min, int taille_max, int pas, int nb_sec)
 
     t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 
-    fprintf(file, "%d %llu\n", i, t);
+    fprintf(file, "%d %lu\n", i, t);
 
     deleteMatrix(A);
   }

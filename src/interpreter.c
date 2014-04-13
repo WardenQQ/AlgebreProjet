@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "interpreter.h"
+#include "speedtest.h"
 
 static Data extract_data(Tree node, SymbolTable symbol_table);
 
@@ -112,6 +113,8 @@ static Data call_function(Tree node, SymbolTable symbol_table)
     data = call_solve(node, symbol_table);
   } else if (strncmp(node->token.id.name, "rank", STRING_MAX) == 0) {
     data = call_rank(node, symbol_table);
+  } else if (strncmp(node->token.id.name, "speedtest", STRING_MAX) == 0) {
+    data = call_speedtest(node, symbol_table);
   } else if (strncmp(node->token.id.name, "quit", STRING_MAX) == 0) {
     exit(0);
   } else {

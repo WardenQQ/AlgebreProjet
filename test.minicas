@@ -1,0 +1,26 @@
+A:matrix([1,-1,2],[3,2,1],[2,-3,-2]);
+B:matrix([5],[10],[-10]);
+X:solve(A,B);
+mult(A,X);
+
+addition(B,X);
+sub(B,B);
+
+transpose(A);
+
+mult_scal(A,-.1);
+
+expo(mult_scal
+(I:matrix
+([1,0],
+[0,1]), 2),
+ 10);
+
+rank(matrix([1,-1,2],[3,2,1],[2,-3,-2],[82,-3,-2]));
+
+determinant(C:matrix([1,2,-3],[4,3,-1],[0,1,2]));
+
+inv:invert(A);
+mult(A,inv);
+
+speedtest(invert, 5, 100, 10, 1);

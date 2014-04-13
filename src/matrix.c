@@ -4,7 +4,15 @@
 
 #include "matrix.h"
 
-
+/**
+ *
+ * \brief Fonction de création de Matrices
+ *
+ * \param nb_rows Nombre de lignes
+ * \param nb_columns Nombre de colonnes
+ * \return Retourne une matrice à nb_rows lignes et nb_columns colonnes.
+ * Ou NULL si les nb_rows < 1 || nb_columns < 1.
+ */
 Matrix newMatrix(int nb_rows, int nb_columns)
 {
   Matrix m;
@@ -15,10 +23,12 @@ Matrix newMatrix(int nb_rows, int nb_columns)
 
   if ((m = malloc(sizeof(struct matrix))) == NULL) {
     perror("Erreur de malloc ");
+    return NULL;
   }
 
   if ((m->mat = malloc(sizeof(E) * (nb_rows * nb_columns))) == NULL) {
     perror("Erreur de malloc ");
+    return NULL;
   }
 
   m->nbrows = nb_rows;
