@@ -23,6 +23,8 @@ static Data call_invert(Tree node, SymbolTable symbol_table);
 static Data call_solve(Tree node, SymbolTable symbol_table);
 static Data call_rank(Tree node, SymbolTable symbol_table);
 static Data call_speedtest(Tree node, SymbolTable symbol_table);
+static Data call_eigenvalues(Tree node, SymbolTable symbol_table);
+static Data call_least_estimate(Tree node, SymbolTable symbol_table);
 
 
 void interpreter(Tree root, SymbolTable symbol_table)
@@ -115,6 +117,8 @@ static Data call_function(Tree node, SymbolTable symbol_table)
     data = call_rank(node, symbol_table);
   } else if (strncmp(node->token.id.name, "speedtest", STRING_MAX) == 0) {
     data = call_speedtest(node, symbol_table);
+  } else if (strncmp(node->token.id.name, "eigenvalue", STRING_MAX) == 0) {
+    data = call_eigenvalues(node, symbol_table);
   } else if (strncmp(node->token.id.name, "quit", STRING_MAX) == 0) {
     exit(0);
   } else {
@@ -546,6 +550,47 @@ static Data call_speedtest(Tree node, SymbolTable symbol_table)
 
   speedtest(node->child[0]->token.id.name, m[0].number.value, m[1].number.value,
       m[2].number.value, option.number.value);
+
+  return result;
+}
+
+
+static Data call_eigenvalues(Tree node, SymbolTable symbol_table)
+{
+  Data result = {.common = {.type = DATA_NULL}};
+  if (node->count != 1 && node->count != 2) {
+    fprintf(stderr, "La fonction %s s'attend à 1 ou 2 arguments.\n", node->token.id.name);
+    return result;
+  }
+
+  Data m = extract_data(node->child[0], symbol_table);
+  if (m.common.type != DATA_MATRIX) {
+      fprintf(stderr, "Dans la fonction %s, l'argument 1 n'est pas du type matrice.\n",
+          node->token.id.name);
+      return result;
+  }
+  Data option = {.common = {.type = DATA_NUMBER}};
+
+  if (node->count == 2) {
+    option = extract_data(node->child[1], symbol_table);
+    if (m.common.type != DATA_NUMBER) {
+      fprintf(stderr, "Dans la fonction %s, l'argument 1 n'est pas du type matrice.\n",
+          node->token.id.name);
+      return result;
+    }
+  } else {
+    option.number.value = 0.01;
+  }
+
+  eigenvalue_t ev = eigenvalues(m.matrix.value, option.number.value);
+  if (ev.vecteur_propre == NULL) {
+    return result;
+  }
+  result.matrix.value = ev.vecteur_propre;
+  result.matrix.type = DATA_MATRIX;
+  result.matrix.is_temp = true;
+
+  printf("Plus grande valeur propre: %- 8.2f ", ev.valeur_propre);
 
   return result;
 }

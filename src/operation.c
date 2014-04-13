@@ -349,11 +349,11 @@ eigenvalue_t eigenvalues(Matrix A,E precision)
   {
     if (i == j) 
     {
-      setElt(v_propre,i,0,1);
+      setElt(v_propre, i, 0, 1);
     }
     else 
     {
-      setElt(v_propre,i,0,0);
+      setElt(v_propre, i, 0, 0);
     }
   }
 
