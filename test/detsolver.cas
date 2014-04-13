@@ -1,0 +1,8 @@
+A : matrix([1, -1, 2], [3, 2, 1], [2, -3, -2]);
+B : matrix([5], [10], [-10]);
+
+determinant(A);
+
+X : solve(A, B);
+
+mult(A, X);

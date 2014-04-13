@@ -1,0 +1,6 @@
+mult(I: matrix([1,0,0], [0,1,0], [0,0,1]), matrix([2, 2, 2], [4, 4, 4], [2, 2,
+2]));
+
+deux_fois_inverse : mult_scal(I, 2);
+
+expo(deux_fois_inverse, 3);
