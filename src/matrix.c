@@ -37,15 +37,40 @@ Matrix newMatrix(int nb_rows, int nb_columns)
   return m;
 }
 
+/**
+ * \brief Fonction d'accession à un élément i,j de la Matrice
+ * 
+ * \param m Matrice
+ * \param rows Ligne de la Matrice
+ * \param columns Colonne de la Matrice
+ * \return Retourne un élément de la Matrice à la ligne rows 
+ * et à la colonne columns
+ */
 E getElt(Matrix m,int rows,int columns)
 {
   return m->mat[columns + (rows * (m->nbcols))];
 }
 
+/**
+ * \brief Fonction de modification d'un élément en i,j de la Matrice
+ *
+ * \param m Matrice
+ * \param row Ligne de la Matrice 
+ * \param column Colonne de la Matrice
+ *
+ */
+
 void setElt(Matrix m,int row,int column,E val)
 {
   m->mat[column + (row * m->nbcols)] = val;
 }
+
+/**
+ * \brief Fonction de suppression d'une Matrice
+ *
+ * \param m Matrice
+ * 
+ */
 
 void deleteMatrix(Matrix m)
 {
@@ -53,7 +78,10 @@ void deleteMatrix(Matrix m)
 	free(m);
 }
 
-// TODO: Affichage de la matrice
+/** 
+ * \brief Fonction 
+ *
+ */
 void displayMatrix(Matrix m)
 {
 	int i,j;
