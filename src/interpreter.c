@@ -21,6 +21,7 @@ static Data call_determinant(Tree node, SymbolTable symbol_table);
 static Data call_invert(Tree node, SymbolTable symbol_table);
 static Data call_solve(Tree node, SymbolTable symbol_table);
 static Data call_rank(Tree node, SymbolTable symbol_table);
+static Data call_speedtest(Tree node, SymbolTable symbol_table);
 
 
 void interpreter(Tree root, SymbolTable symbol_table)
@@ -493,6 +494,55 @@ static Data call_rank(Tree node, SymbolTable symbol_table)
   if (m.matrix.is_temp) {
     deleteMatrix(m.matrix.value);
   }
+
+  return result;
+}
+
+static Data call_speedtest(Tree node, SymbolTable symbol_table)
+{
+  Data result = {.common = {.type = DATA_NULL}};
+  if (node->count != 4 && node->count != 5) {
+    fprintf(stderr, "La fonction %s s'attend à 4 ou 5 arguments.\n", node->token.id.name);
+    return result;
+  }
+
+  if (node->child[0]->token.type != TOK_ID) {
+    fprintf(stderr, "Dans la fonction %s, l'argument 1 n'est pas un string.\n",
+        node->token.id.name);
+  }
+  Data option = {.common = {.type = DATA_NUMBER}};
+  Data m[3];
+  for (int i = 0; i < 3; ++i) {
+    m[i] = extract_data(node->child[i + 1], symbol_table);
+  }
+  if (m[0].common.type != DATA_NUMBER) {
+    fprintf(stderr, "Dans la fonction %s, l'argument 2 n'est pas du type nombre.\n",
+        node->token.id.name);
+    return result;
+  }
+  if (m[1].common.type != DATA_NUMBER) {
+    fprintf(stderr, "Dans la fonction %s, l'argument 3 n'est pas du type nombre.\n",
+        node->token.id.name);
+    return result;
+  }
+  if (m[2].common.type != DATA_NUMBER) {
+    fprintf(stderr, "Dans la fonction %s, l'argument 4 n'est pas du type nombre.\n",
+        node->token.id.name);
+    return result;
+  }
+  if (node->count == 5) {
+    option = extract_data(node->child[4], symbol_table);
+    if (option.common.type != DATA_NUMBER) {
+      fprintf(stderr, "Dans la fonction %s, l'argument 5 n'est pas du type nombre.\n",
+          node->token.id.name);
+      return result;
+    }
+  } else {
+    option.number.value = 0;
+  }
+
+  speedtest(node->child[0]->token.id.name, m[0].number.value, m[1].number.value,
+      m[2].number.value, option.number.value);
 
   return result;
 }
