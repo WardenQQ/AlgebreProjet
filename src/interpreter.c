@@ -421,12 +421,6 @@ static Data call_invert(Tree node, SymbolTable symbol_table)
     return result;
   }
 
-  if (m.matrix.value->nbrows != m.matrix.value->nbcols) {
-    fprintf(stderr, "In function %s, argument 0 is not a square matrix.\n",
-        node->token.id.name);
-    return result;
-  }
-
   result.matrix.value = invert_bis(m.matrix.value);
   if (result.matrix.value == NULL) {
     return result;

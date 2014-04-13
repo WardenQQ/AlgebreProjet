@@ -1,6 +1,3 @@
-m1 : matrix([-2,0,0],[0,-2,0],[0,0,-2]);
-m2 : mult_scal(m1,-.5e0);
-m3 : mult(m2, count_down:matrix([9,8,7],[6,5,4],[3,2,1]));
-m4 : addition(m1,matrix([0,0,0],[0,0,0],[0,0,0]));
-expo(m1, 3);
-m5 : invert(m2);
+A:matrix([1,-1,2],[3,2,1],[2,-3,-2]);
+inv:invert(A);
+mult(A,inv);

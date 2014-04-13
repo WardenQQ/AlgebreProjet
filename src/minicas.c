@@ -33,8 +33,11 @@ int main(int argc, char *argv[])
     Tree root = parser(&lookahead);
     if (root != NULL) {
       interpreter(root, symbol_table);
+      deleteTree(root);
     }
   } while (lookahead.type != TOK_EOF);
+
+  deleteSymbolTable(symbol_table);
 
   return 0;
 }
