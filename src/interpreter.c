@@ -569,12 +569,12 @@ static Data call_eigenvalues(Tree node, SymbolTable symbol_table)
           node->token.id.name);
       return result;
   }
-  Data option = {.common = {.type = DATA_NUMBER}};
 
+  Data option = {.common = {.type = DATA_NUMBER}};
   if (node->count == 2) {
     option = extract_data(node->child[1], symbol_table);
-    if (m.common.type != DATA_NUMBER) {
-      fprintf(stderr, "Dans la fonction %s, l'argument 1 n'est pas du type matrice.\n",
+    if (option.common.type != DATA_NUMBER) {
+      fprintf(stderr, "Dans la fonction %s, l'argument 2 n'est pas du type nombre.\n",
           node->token.id.name);
       return result;
     }
