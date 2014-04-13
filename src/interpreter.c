@@ -119,6 +119,8 @@ static Data call_function(Tree node, SymbolTable symbol_table)
     data = call_speedtest(node, symbol_table);
   } else if (strncmp(node->token.id.name, "eigenvalue", STRING_MAX) == 0) {
     data = call_eigenvalues(node, symbol_table);
+  } else if (strncmp(node->token.id.name, "least_estimate", STRING_MAX) == 0) {
+    data = call_least_estimate(node, symbol_table);
   } else if (strncmp(node->token.id.name, "quit", STRING_MAX) == 0) {
     exit(0);
   } else {
@@ -590,7 +592,55 @@ static Data call_eigenvalues(Tree node, SymbolTable symbol_table)
   result.matrix.type = DATA_MATRIX;
   result.matrix.is_temp = true;
 
+  if (m.matrix.is_temp) {
+    deleteMatrix(m.matrix.value);
+  }
+
   printf("Plus grande valeur propre: %- 8.2f\n", ev.valeur_propre);
+
+  return result;
+}
+
+static Data call_least_estimate(Tree node, SymbolTable symbol_table)
+{
+  Data result = {.common = {.type = DATA_NULL}};
+  if (node->count != 1 && node->count != 2) {
+    fprintf(stderr, "La fonction %s s'attend à 1 ou 2 arguments.\n", node->token.id.name);
+    return result;
+  }
+
+  Data m = extract_data(node->child[0], symbol_table);
+  if (m.common.type != DATA_MATRIX) {
+      fprintf(stderr, "Dans la fonction %s, l'argument 1 n'est pas du type matrice.\n",
+          node->token.id.name);
+      return result;
+  }
+
+  char *name = NULL;
+  if (node->count == 2) {
+    if (node->child[1]->token.type != TOK_ID) {
+      fprintf(stderr, "Dans la fonction %s, l'argument 2 n'est pas du type string.\n",
+          node->token.id.name);
+      return result;
+    }
+    name = node->child[1]->token.id.name;
+  }
+
+  least_squares_t ls = least_estimate(m.matrix.value, name);
+  if (ls.coef_droite == NULL && ls.residu == NULL) {
+    return result;
+  }
+  result.matrix.value = ls.coef_droite;
+  result.matrix.type = DATA_MATRIX;
+  result.matrix.is_temp = true;
+
+  printf("Les residus:\n");
+  displayMatrix(ls.residu);
+  deleteMatrix(m.matrix.value);
+
+  if (m.matrix.is_temp) {
+    deleteMatrix(m.matrix.value);
+  }
 
   return result;
 }
