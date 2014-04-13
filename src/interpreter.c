@@ -392,7 +392,7 @@ static Data call_determinant(Tree node, SymbolTable symbol_table)
     return result;
   }
 
-  if (determinant_bis(m.matrix.value, &result.number.value) == 0) {
+  if (determinant(m.matrix.value, &result.number.value) == 0) {
     return result;
   }
   result.number.type = DATA_NUMBER;
@@ -420,7 +420,7 @@ static Data call_invert(Tree node, SymbolTable symbol_table)
     return result;
   }
 
-  result.matrix.value = invert_bis(m.matrix.value);
+  result.matrix.value = invert(m.matrix.value);
   if (result.matrix.value == NULL) {
     return result;
   }
@@ -453,7 +453,7 @@ static Data call_solve(Tree node, SymbolTable symbol_table)
     }
   }
 
-  result.matrix.value = solve_bis(m[0].matrix.value, m[1].matrix.value);
+  result.matrix.value = solve(m[0].matrix.value, m[1].matrix.value);
   if (result.matrix.value == NULL) {
     return result;
   }
@@ -486,7 +486,7 @@ static Data call_rank(Tree node, SymbolTable symbol_table)
     return result;
   }
 
-  result.number.value = rank_bis(m.matrix.value);
+  result.number.value = rank(m.matrix.value);
   result.number.type = DATA_NUMBER;
   result.matrix.is_temp = true;
 

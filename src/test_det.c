@@ -19,7 +19,7 @@ int main()
   setElt(A, 2, 2, 2);
 
   E det;
-  determinant_bis(A, &det);
+  determinant(A, &det);
   deleteMatrix(A);
   assert(det == -21);
 }
