@@ -11,13 +11,15 @@ Matrix mult(Matrix m1, Matrix m2);
 Matrix mult_scal(Matrix m, E s);
 Matrix expo(Matrix m, int exposant);
 Matrix transpose(Matrix m);
+int determinant_bis(Matrix m, E *det);
+Matrix invert_bis(Matrix m);
+Matrix solve_bis(Matrix A, Matrix B);
+
 E determinant(Matrix m);
 Matrix invert(Matrix m);
 Matrix solve(Matrix A,Matrix B);
 int rank(Matrix A);
 Matrix least_estimate(Matrix A, char * nom_fichier);
-
-E reduced_row_echelon_form(Matrix A, Matrix B);
 
 void echangeLigne_det(Matrix m,int i,int j);
 

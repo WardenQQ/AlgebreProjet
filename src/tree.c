@@ -20,15 +20,16 @@ Tree newTree()
   return t;
 }
 
+// TODO: remove this function.
 void setValue(Tree t, Token value)
 {
   t->token = value;
 }
 
-void setNbChild(Tree t, size_t nb)
+void setNbChild(Tree t, int nb)
 {
   // On libère des struct tree si on en a trop.
-  for (size_t i = nb; i < t->count; ++i) {
+  for (int  i = nb; i < t->count; ++i) {
     deleteTree(t->child[i]);
   }
 
@@ -48,7 +49,7 @@ void addChild(Tree parent, Tree child)
 
 void deleteTree(Tree t)
 {
-  for (size_t i = 0; i < t->count; ++i) {
+  for (int i = 0; i < t->count; ++i) {
     deleteTree(t->child[i]);
   }
   free(t->child);

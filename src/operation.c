@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <float.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,8 +10,15 @@
 
 static E valeur_absolue(E e);
 static int choixPivot(Matrix m, int i);
+static int choose_pivot(Matrix m, int row, int col);
 static void swap_line(Matrix m, int l1, int l2);
 static void combine_line(Matrix m, E c1, int l1, E c2, int l2);
+static E reduced_row_echelon_form(Matrix A, Matrix B);
+
+static int choixPivot(Matrix m, int i)
+{
+  return i;
+}
 
 Matrix copie_matrix(Matrix m)
 {
@@ -130,12 +138,99 @@ Matrix transpose(Matrix m)
   return m_t;
 }
 
-E reduced_row_echelon_form(Matrix A, Matrix B)
+int determinant_bis(Matrix m, E *det)
 {
-  int det = 1;
+  if (m->nbcols != m->nbrows) {
+    fprintf(stderr, "La matrice doit etre carrée.\n");
+    return 0;
+  }
 
-  for (int i = 0; i < A->nbrows; ++i) {
-    int p = choixPivot(A, i);
+  Matrix m_copie = copie_matrix(m);
+  *det = reduced_row_echelon_form(m_copie, NULL);
+
+  deleteMatrix(m_copie);
+
+  return 1;
+}
+
+Matrix invert_bis(Matrix m)
+{
+  if (m->nbrows != m->nbcols) {
+    fprintf(stderr, "La matrice n'est pas une matrice carré.\n");
+    return NULL;
+  }
+  Matrix m_inverse = identite(m->nbrows, m->nbcols);
+  Matrix m_tmp = copie_matrix(m);
+
+  E det = reduced_row_echelon_form(m_tmp, m_inverse);
+  deleteMatrix(m_tmp);
+  if (det == 0.0) {
+    fprintf(stderr, "La matrice n'est pas inversible.\n");
+    return NULL;
+  }
+
+  return m_inverse;
+}
+
+Matrix solve_bis(Matrix A, Matrix B)
+{
+  if (B->nbcols != 1) {
+    fprintf(stderr, "L'argument 2 n'est pas un vecteur colonne.\n");
+    return NULL;
+  }
+  if (A->nbrows != A->nbcols) {
+    fprintf(stderr, "L'argument 1 n'est pas une matrice carré.\n");
+    return NULL;
+  }
+  if (B->nbrows != A->nbcols) {
+    fprintf(stderr, "Le nombre de colonnes de la matrice de l'argument 1 est"
+        " différent du nombre de ligne de la matrice de l'argument 2.\n");
+    return NULL;
+  }
+
+  Matrix I = copie_matrix(A);
+  Matrix X = copie_matrix(B);
+
+  E det = reduced_row_echelon_form(I, X);
+  deleteMatrix(I);
+  if (det == 0.0) {
+    fprintf(stderr, "La matrice de l'argument 1 a un determinant nul.\n");
+    return NULL;
+  }
+
+  return X;
+}
+
+int rank_bis(Matrix m)
+{
+  Matrix m_copie = copie_matrix(m);
+
+  reduced_row_echelon_form(m_copie, NULL);
+
+  int r;
+  int j;
+  for (r = 0, j = 0; r < m->nbrows && j < m->nbcols; ++j) {
+    for (;j < m->nbcols; ++j) {
+      if (getElt(m_copie, r, j) != 0.0) {
+        ++r;
+        break;
+      }
+    }
+  }
+
+  deleteMatrix(m_copie);
+
+  return r;
+}
+
+static E reduced_row_echelon_form(Matrix A, Matrix B)
+{
+  E det = 1;
+
+  int i;
+  int j;
+  for (i = 0, j = 0; i < A->nbrows && j < A->nbcols; ++j) {
+    int p = choose_pivot(A, i, j);
     if (p != -1) {
       if (p != i) {
         swap_line(A, i, p);
@@ -145,33 +240,42 @@ E reduced_row_echelon_form(Matrix A, Matrix B)
         det *= -1;
       }
 
+      E c1 = getElt(A, i, j);
+      E c2;
+
+      // On met les coefficients au dessus de (i, j) à 0
       for (int k = 0; k < i; ++k) {
-        E c1 = getElt(A, i, i);
-        E c2 = -getElt(A, k, i);
+        E c2 = -getElt(A, k, j);
         combine_line(A, 1, k, c2 / c1, i);
+        assert(getElt(A, k, j) == 0.0);
         if (B != NULL) {
         combine_line(B, 1, k, c2 / c1, i);
         }
       }
 
+      // On met les coefficients en dessous de (i, j) à 0
       for (int k = i + 1; k < A->nbrows; ++k) {
-        E c1 = getElt(A, i, i);
-        E c2 = -getElt(A, k, i);
+        E c2 = -getElt(A, k, j);
         combine_line(A, c1, k, c2, i);
+        assert(getElt(A, k, j) == 0.0);
         if (B != NULL) {
         combine_line(B, c1, k, c2, i);
         }
-        det *= c1;
+        det /= c1;
       }
 
-      E c1 = 1 / getElt(A, i, i);
-      combine_line(A, c1, i, 0, 0);
+      // On normalise la ligne i
+      combine_line(A, 1 / c1, i, 0, 0);
       if (B != NULL) {
-        combine_line(B, c1, i, 0, 0);
-        det *= c1;
+        combine_line(B, 1 / c1, i, 0, 0);
       }
+      det *= c1;
+
+      ++i;
     }
   }
+
+  return i == j ? det : 0.0;
 }
 
 static E valeur_absolue(E e)
@@ -179,19 +283,20 @@ static E valeur_absolue(E e)
   return e >= 0 ? e : -e;
 }
 
-static int choixPivot(Matrix m, int i)
+static int choose_pivot(Matrix m, int row, int col)
 {
-  int p = i;
-  E v = valeur_absolue(getElt(m,i,i));
-  for(int j = i + 1; j < m->nbcols; j++) {
-    if(valeur_absolue(getElt(m, j, i)) > v) {
-      p = j;
-      v = valeur_absolue(getElt(m,j,i));
+  int pivot = row;
+  E max = valeur_absolue(getElt(m, row, col));
+  for(++row; row < m->nbrows; ++row) {
+    E value = valeur_absolue(getElt(m, row, col));
+    if(value > max) {
+      pivot = row;
+      max = value;
     }
   }
 
-  p = v == 0.0 ? -1 : p;
-  return p;
+  pivot = max == 0.0 ? -1 : pivot;
+  return pivot;
 }
 
 static void swap_line(Matrix m, int l1, int l2)

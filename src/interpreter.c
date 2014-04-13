@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,6 +61,7 @@ static Data extract_data(Tree node, SymbolTable symbol_table)
       data.number.value = node->token.number.value;
       break;
     case TOK_LIST:
+      //TODO: message erreur.
       break;
     default:
       break;
@@ -161,9 +163,9 @@ static Data call_matrix(Tree node, SymbolTable symbol_table)
     }
   }
 
+  result.matrix.value = m;
   result.matrix.type = DATA_MATRIX;
   result.matrix.is_temp = true;
-  result.matrix.value = m;
 
   return result;
 }
@@ -263,8 +265,8 @@ static Data call_mult(Tree node, SymbolTable symbol_table)
   if (result.matrix.value == NULL) {
     return result;
   }
-  result.matrix.is_temp = true;
   result.matrix.type = DATA_MATRIX;
+  result.matrix.is_temp = true;
 
   if (m[0].matrix.is_temp) {
     deleteMatrix(m[0].matrix.value);
@@ -378,27 +380,22 @@ static Data call_determinant(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
-    fprintf(stderr, "Function %s expects 1 arguments\n", node->token.id.name);
+    fprintf(stderr, "La fonction %s s'attend à 1 arguments.\n", node->token.id.name);
     return result;
   }
 
   Data m;
   m = extract_data(node->child[0], symbol_table);
   if (m.common.type != DATA_MATRIX) {
-    fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
+    fprintf(stderr, "Dans la fonction %s, l'argument 1 n'est pas du type matrice.\n",
         node->token.id.name);
     return result;
   }
 
-  if (m.matrix.value->nbrows != m.matrix.value->nbcols) {
-    fprintf(stderr, "In function %s, argument 0 is not a square matrix.\n",
-        node->token.id.name);
+  if (determinant_bis(m.matrix.value, &result.number.value) == 0) {
     return result;
   }
-
   result.number.type = DATA_NUMBER;
-  result.number.value = determinant(m.matrix.value);
-  result.matrix.is_temp = true;
 
   if (m.matrix.is_temp) {
     deleteMatrix(m.matrix.value);
@@ -429,8 +426,11 @@ static Data call_invert(Tree node, SymbolTable symbol_table)
     return result;
   }
 
+  result.matrix.value = invert_bis(m.matrix.value);
+  if (result.matrix.value == NULL) {
+    return result;
+  }
   result.matrix.type = DATA_MATRIX;
-  result.matrix.value = invert(m.matrix.value);
   result.matrix.is_temp = true;
 
   if (m.matrix.is_temp) {
@@ -444,7 +444,7 @@ static Data call_solve(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 2) {
-    fprintf(stderr, "Function %s expects 2 arguments\n", node->token.id.name);
+    fprintf(stderr, "La fonction %s s'attend à 2 arguments.\n", node->token.id.name);
     return result;
   }
 
@@ -452,14 +452,18 @@ static Data call_solve(Tree node, SymbolTable symbol_table)
   for (int i = 0; i < 2; ++i) {
     m[i] = extract_data(node->child[i], symbol_table);
     if (m[i].common.type != DATA_MATRIX) {
-      fprintf(stderr, "In function %s, arguments are not all of type matrix.\n",
-          node->token.id.name);
+      fprintf(stderr,
+          "Dans la fonction %s l'argument %d n'est pas de type matrice.\n",
+          node->token.id.name, i + 1);
       return result;
     }
   }
 
+  result.matrix.value = solve_bis(m[0].matrix.value, m[1].matrix.value);
+  if (result.matrix.value == NULL) {
+    return result;
+  }
   result.matrix.type = DATA_MATRIX;
-  result.matrix.value = solve(m[0].matrix.value, m[1].matrix.value); //Won't work
   result.matrix.is_temp = true;
 
   if (m[0].matrix.is_temp) {
@@ -476,20 +480,20 @@ static Data call_rank(Tree node, SymbolTable symbol_table)
 {
   Data result = {.common = {.type = DATA_NULL}};
   if (node->count != 1) {
-    fprintf(stderr, "Function %s expects 1 arguments\n", node->token.id.name);
+    fprintf(stderr, "La fonction %s s'attend à 1 arguments.\n", node->token.id.name);
     return result;
   }
 
   Data m;
   m = extract_data(node->child[0], symbol_table);
   if (m.common.type != DATA_MATRIX) {
-    fprintf(stderr, "In function %s, argument 0 is not of type matrix.\n",
+    fprintf(stderr, "Dans la fonction %s, l'argument 1 n'est pas du type matrice.\n",
         node->token.id.name);
     return result;
   }
 
+  result.number.value = rank_bis(m.matrix.value);
   result.number.type = DATA_NUMBER;
-  result.number.value = rank(m.matrix.value);
   result.matrix.is_temp = true;
 
   if (m.matrix.is_temp) {
