@@ -20,6 +20,6 @@ int main()
 
   E det;
   determinant_bis(A, &det);
-
+  deleteMatrix(A);
   assert(det == -21);
 }
