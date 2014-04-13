@@ -33,7 +33,7 @@ void interpreter(Tree root, SymbolTable symbol_table)
 
   switch (data.common.type) {
     case DATA_NUMBER:
-      printf("%f\n", data.number.value);
+      printf("    %- 8.2f\n", data.number.value);
       break;
     case DATA_MATRIX:
       displayMatrix(data.matrix.value);
@@ -590,7 +590,7 @@ static Data call_eigenvalues(Tree node, SymbolTable symbol_table)
   result.matrix.type = DATA_MATRIX;
   result.matrix.is_temp = true;
 
-  printf("Plus grande valeur propre: %- 8.2f ", ev.valeur_propre);
+  printf("Plus grande valeur propre: %- 8.2f\n", ev.valeur_propre);
 
   return result;
 }

@@ -1,0 +1,10 @@
+A : matrix([1,9],[2,8],[3,7]);
+B : matrix([9,1],[8,2],[7,3]);
+
+C : addition(A,B);
+
+sub(C,A);
+
+addition(B, D : matrix([0]));
+
+sub(A, A, D);
