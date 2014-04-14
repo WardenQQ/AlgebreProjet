@@ -340,6 +340,16 @@ static E plus_grande_compo_absolue(Matrix A)
 
 eigenvalue_t eigenvalues(Matrix A,E precision)
 {
+  if (A->nbrows != A->nbcols) {
+    fprintf(stderr, "L'argument 1 n'est pas une matrice carré.\n");
+    eigenvalue_t error = {.vecteur_propre = NULL};
+    return error;
+  }
+
+  if (precision < 0.0) {
+    precision = 0.1;
+  }
+
   Matrix m_propre = copie_matrix(A);
   Matrix v_propre = newMatrix(m_propre->nbrows,1);
   E vp=0;
@@ -380,6 +390,12 @@ eigenvalue_t eigenvalues(Matrix A,E precision)
 
 least_squares_t least_estimate(Matrix A, char * nom_fichier)
 {
+  if (A->nbcols != 2) {
+    fprintf(stderr, "Le nombre de colonne de la matrice de l'argument 1 doit etre de 2\n");
+    least_squares_t error = {.coef_droite = NULL, .residu = NULL};
+    return error;
+  }
+
   Matrix new_A = newMatrix(A->nbrows,2);
   Matrix new_B = newMatrix(A->nbrows,1);
   // init matrices
@@ -401,17 +417,22 @@ least_squares_t least_estimate(Matrix A, char * nom_fichier)
   }
 
   if (nom_fichier != NULL) {
-  FILE * file = fopen(nom_fichier,"w");
-  
-  fprintf(file, "set xlabel \"Axe des x\"\n");
-  fprintf(file, "set ylabel \"Axe des y\"\n");
-  fprintf(file, "f(x)=x*%f+%f\n",getElt(X,0,0),getElt(X,1,0));
-  fprintf(file, "set terminal png size 640,480 enhanced font \"Helvetica,20\"\n"); 
-  fprintf(file, "set output \"graph.png\"\n");
-  fprintf(file, "plot f(x)\n");
+    FILE * file = fopen(nom_fichier,"w");
 
+    fprintf(file, "set xlabel \"Axe des x\"\n");
+    fprintf(file, "set ylabel \"Axe des y\"\n");
+    fprintf(file, "f(x)=x*%g+%g\n",getElt(X,0,0),getElt(X,1,0));
+    fprintf(file, "set terminal png size 640,480\n"); 
+    fprintf(file, "set output \"%s.png\"\n", nom_fichier);
 
-  fclose(file);
+    fprintf(file, "plot f(x)\n");
+    fprintf(file, "plot \"-\" with points\n");
+    for (int i = 0; i < A->nbrows; ++i) {
+      fprintf(file, "%g %g\n", getElt(A, i, 0), getElt(A, i, 1));
+    }
+    fprintf(file, "end\n");
+
+    fclose(file);
   }
   
   least_squares_t ls = {.residu = residu, .coef_droite = X};

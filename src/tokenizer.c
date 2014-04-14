@@ -59,7 +59,6 @@ Token gettoken()
 
   if (isdigit(last_char) || last_char == '.' || last_char == '-') {
     bool hasdot = false;
-    bool hasexpo = false;
     int i = 0;
     char number[STRING_MAX];
 
@@ -67,15 +66,10 @@ Token gettoken()
       if (last_char == '.') {
         hasdot = true;
       }
-      if (last_char == 'e' || last_char == 'E') {
-        hasdot = true;
-        hasexpo = true;
-      }
       number[i] = last_char;
       ++i;
       last_char = getchar();
-    } while ((isdigit(last_char) || (last_char == '.' && !hasdot) 
-          || (last_char == 'e' && !hasexpo)  || (last_char == 'E' && !hasexpo))
+    } while ((isdigit(last_char) || (last_char == '.' && !hasdot))
           && i < STRING_MAX - 1);
 
     number[i] = '\0';
