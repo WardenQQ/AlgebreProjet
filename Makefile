@@ -18,6 +18,7 @@ TESTS := $(patsubst $(SDIR)/%.o, $(BDIR)/%, $(TESTOBJECTS))
 	$(CC) $(CFLAGS) -I$(IDIR) -c $< -o $@
 
 $(BDIR)/%: $(SDIR)/%.o $(OBJECTS)
+	@mkdir -p $(BDIR)
 	$(CC) $(CFLAGS) $^ -o $@
 
 all: $(BDIR)/minicas $(TESTS)
