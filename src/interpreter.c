@@ -636,6 +636,7 @@ static Data call_least_estimate(Tree node, SymbolTable symbol_table)
 
   printf("Les residus:\n");
   displayMatrix(ls.residu);
+  deleteMatrix(ls.residu);
 
   if (m.matrix.is_temp) {
     deleteMatrix(m.matrix.value);
