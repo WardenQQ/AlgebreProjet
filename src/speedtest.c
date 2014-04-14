@@ -1,10 +1,12 @@
 #include <float.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
-#include <limits.h>
 
 #include "speedtest.h"
 #include "operation.h"
@@ -63,10 +65,13 @@ void speedtest(char *commande, int taille_min, int taille_max, int pas, int nb_s
       perror("exec");
       exit(1);
     default:
+      wait(NULL);
       break;
   }
 
   fclose(file);
+  remove("./plot.dat");
+  remove("./graph");
 }
 
 

@@ -1,0 +1,3 @@
+P : matrix([1, 2], [2, 2], [3, 3], [4, 2], [5, 4]);
+
+least_estimate(P, least_estimate);
