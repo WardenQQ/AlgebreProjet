@@ -81,8 +81,8 @@ void speedtest(char *commande, int taille_min, int taille_max, int pas, int nb_s
   }
 
   fclose(file);
-  remove("./plot.dat");
-  remove("./graph");
+  //remove("./plot.dat");
+  //remove("./graph");
 }
 
 
