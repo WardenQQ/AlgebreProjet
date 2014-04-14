@@ -425,8 +425,7 @@ least_squares_t least_estimate(Matrix A, char * nom_fichier)
     fprintf(file, "set terminal png size 640,480\n"); 
     fprintf(file, "set output \"%s.png\"\n", nom_fichier);
 
-    fprintf(file, "plot f(x)\n");
-    fprintf(file, "plot \"-\" with points\n");
+    fprintf(file, "plot \"-\" with points, f(x)\n");
     for (int i = 0; i < A->nbrows; ++i) {
       fprintf(file, "%g %g\n", getElt(A, i, 0), getElt(A, i, 1));
     }
