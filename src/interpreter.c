@@ -26,8 +26,9 @@ static Data call_speedtest(Tree node, SymbolTable symbol_table);
 static Data call_eigenvalues(Tree node, SymbolTable symbol_table);
 static Data call_least_estimate(Tree node, SymbolTable symbol_table);
 
+bool called_quit = false;
 
-void interpreter(Tree root, SymbolTable symbol_table)
+bool interpreter(Tree root, SymbolTable symbol_table)
 {
   Data data = extract_data(root, symbol_table);
 
@@ -44,6 +45,8 @@ void interpreter(Tree root, SymbolTable symbol_table)
     default:
       break;
   }
+
+  return called_quit;
 }
 
 static Data extract_data(Tree node, SymbolTable symbol_table)
@@ -122,7 +125,7 @@ static Data call_function(Tree node, SymbolTable symbol_table)
   } else if (strncmp(node->token.id.name, "least_estimate", STRING_MAX) == 0) {
     data = call_least_estimate(node, symbol_table);
   } else if (strncmp(node->token.id.name, "quit", STRING_MAX) == 0) {
-    exit(0);
+    called_quit = true;
   } else {
     fprintf(stderr, "%s n'est pas un fonction.\n", node->token.id.name);
   }

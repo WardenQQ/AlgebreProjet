@@ -5,7 +5,6 @@
 #include <stddef.h>
 #include <stdio.h>
 
-
 #include "parser.h"
 #include "symbol_table.h"
 #include "tokens.h"
@@ -21,6 +20,7 @@ int main(int argc, char *argv[])
 
   SymbolTable symbol_table = newSymbolTable();
 
+  bool called_quit;
   Token lookahead;
   do {
     printf("> ");
@@ -32,10 +32,10 @@ int main(int argc, char *argv[])
 
     Tree root = parser(&lookahead);
     if (root != NULL) {
-      interpreter(root, symbol_table);
+      called_quit = interpreter(root, symbol_table);
       deleteTree(root);
     }
-  } while (lookahead.type != TOK_EOF);
+  } while (lookahead.type != TOK_EOF && !called_quit);
 
   deleteSymbolTable(symbol_table);
 

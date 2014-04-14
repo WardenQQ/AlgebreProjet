@@ -201,7 +201,6 @@ int rank(Matrix m)
   Matrix m_copie = copie_matrix(m);
 
   reduced_row_echelon_form(m_copie, NULL);
-  displayMatrix(m_copie);
   int r;
   int j;
   for (r = 0, j = 0; r < m->nbrows && j < m->nbcols; ++j) {
@@ -346,7 +345,7 @@ eigenvalue_t eigenvalues(Matrix A,E precision)
     return error;
   }
 
-  if (precision < 0.0) {
+  if (precision <= 0.0) {
     precision = 0.1;
   }
 

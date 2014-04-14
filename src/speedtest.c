@@ -23,15 +23,22 @@ static void speedtest_determinant(int taille_min, int taille_max, int pas, int n
 static void speedtest_invert(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_solve(int taille_min, int taille_max, int pas, int nb_sec);
 static void speedtest_rank(int taille_min, int taille_max, int pas, int nb_sec);
+static void speedtest_eigenvalue(int taille_min, int taille_max, int pas, int nb_sec);
+static void speedtest_least_estimate(int taille_min, int taille_max, int pas, int nb_sec);
 
 void speedtest(char *commande, int taille_min, int taille_max, int pas, int nb_sec)
 {
+  if (taille_min <= 0) {
+    fprintf(stderr, "L'argument 2 doit etre un nombre > 0\n");
+    return;
+  }
+
   FILE * file = fopen("./graph", "w");
 
   fprintf(file, "set xlabel \"Taille des matrices\"\n");
   fprintf(file, "set ylabel \"Temps en microsecondes\"\n");
   fprintf(file, "set terminal png size 640,480\n");
-  fprintf(file, "set output \"graph.png\"\n");
+  fprintf(file, "set output \"%s.png\"\n", commande);
   fprintf(file, "plot \"plot.dat\" with lines\n");
 
   if (strncmp(commande, "addition", STRING_MAX) == 0) {
@@ -54,6 +61,10 @@ void speedtest(char *commande, int taille_min, int taille_max, int pas, int nb_s
     speedtest_solve(taille_min, taille_max, pas, nb_sec);
   } else if (strncmp(commande, "rank", STRING_MAX) == 0) { 
     speedtest_rank(taille_min, taille_max, pas, nb_sec);
+  } else if (strncmp(commande, "eigenvalue", STRING_MAX) == 0) { 
+    speedtest_eigenvalue(taille_min, taille_max, pas, nb_sec);
+  } else if (strncmp(commande, "least_estimate", STRING_MAX) == 0) { 
+    speedtest_least_estimate(taille_min, taille_max, pas, nb_sec);
   }
 
   switch (fork()) {
@@ -371,6 +382,64 @@ static void speedtest_rank(int taille_min, int taille_max, int pas, int nb_sec)
 
     gettimeofday(&start, NULL);
     rank(A);
+    gettimeofday(&end, NULL);
+
+    t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
+
+    fprintf(file, "%d %lu\n", i, t);
+
+    deleteMatrix(A);
+  }
+
+  fclose(file);
+}
+
+static void speedtest_eigenvalue(int taille_min, int taille_max, int pas, int nb_sec)
+{
+  FILE * file = fopen("./plot.dat", "w");
+  struct timeval start;
+  struct timeval end;
+
+  unsigned long nb_usec = ~0uL;
+  if (nb_sec > 0) {
+    nb_usec = 1000000 * nb_sec;
+  }
+  unsigned long t = 0;
+
+  for (int i = taille_min; i <= taille_max && t < nb_usec; i += pas) {
+    Matrix A = aleatoire(i, i, DBL_MIN, DBL_MAX); 
+
+    gettimeofday(&start, NULL);
+    eigenvalues(A, 0.1);
+    gettimeofday(&end, NULL);
+
+    t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
+
+    fprintf(file, "%d %lu\n", i, t);
+
+    deleteMatrix(A);
+  }
+
+  fclose(file);
+}
+
+static void speedtest_least_estimate(int taille_min, int taille_max, int pas, int nb_sec)
+{
+  FILE * file = fopen("./plot.dat", "w");
+  struct timeval start;
+  struct timeval end;
+
+  unsigned long nb_usec = ~0uL;
+  if (nb_sec > 0) {
+    nb_usec = 1000000 * nb_sec;
+  }
+  unsigned long t = 0;
+
+  for (int i = taille_min; i <= taille_max && t < nb_usec; i += pas) {
+    Matrix A = aleatoire(i, 2, DBL_MIN, DBL_MAX); 
+
+    gettimeofday(&start, NULL);
+    least_estimate(A, NULL);
     gettimeofday(&end, NULL);
 
     t = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
