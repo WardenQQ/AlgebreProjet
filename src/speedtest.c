@@ -65,15 +65,18 @@ void speedtest(char *commande, int taille_min, int taille_max, int pas, int nb_s
     speedtest_eigenvalue(taille_min, taille_max, pas, nb_sec);
   } else if (strncmp(commande, "least_estimate", STRING_MAX) == 0) { 
     speedtest_least_estimate(taille_min, taille_max, pas, nb_sec);
+  } else {
+    fprintf(stderr, "%s n'est pas une commande valide\n", commande);
   }
 
   switch (fork()) {
-    case -1 :
+    case -1:
       perror("fork");
       break;
-    case 0 :
+    case 0:
+      // N'est jamais atteint sur turing.
       execl("/bin/sh", "/bin/sh", "-c", "gnuplot ./graph", NULL);
-      perror("exec");
+      perror("exec ");
       exit(1);
     default:
       wait(NULL);
