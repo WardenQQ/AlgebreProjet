@@ -435,7 +435,7 @@ least_squares_t least_estimate(Matrix A, char * nom_fichier)
   }
   
   least_squares_t ls = {.residu = residu, .coef_droite = X};
-
+  
   deleteMatrix(new_A);
   deleteMatrix(new_A_T);
   deleteMatrix(new_B);
